@@ -60,6 +60,36 @@ target_compile_features(Meshy PRIVATE cxx_std_17)
 install(TARGETS Meshy RUNTIME DESTINATION lib)
 
 # -------------------------------------------------------------------
+#                       WebAssembly module
+
+if(OCL_WASM)
+
+  # meshy.js (ES module factory: createMeshy) + meshy.wasm.
+  # Single-threaded (Manifold without its parallel backend).
+  add_executable(MeshyWasm ${LIBRARY_HEADERS} ${LIBRARY_SOURCES})
+  set_target_properties(MeshyWasm PROPERTIES OUTPUT_NAME meshy SUFFIX ".js")
+  target_include_directories(MeshyWasm PUBLIC include)
+  target_link_libraries(MeshyWasm PRIVATE manifold)
+  target_link_libraries(MeshyWasm PRIVATE nlohmann_json::nlohmann_json)
+  target_compile_features(MeshyWasm PRIVATE cxx_std_17)
+  target_link_options(MeshyWasm PRIVATE
+          --no-entry
+          -sMODULARIZE=1
+          -sEXPORT_ES6=1
+          -sEXPORT_NAME=createMeshy
+          -sENVIRONMENT=web,worker,node
+          -sALLOW_MEMORY_GROWTH=1
+          -sSTACK_SIZE=1MB
+          -sEXPORTED_FUNCTIONS=_c_operate,_c_version,_malloc,_free
+          -sEXPORTED_RUNTIME_METHODS=UTF8ToString,stringToNewUTF8
+  )
+
+  install(TARGETS MeshyWasm RUNTIME DESTINATION .)
+  install(FILES $<TARGET_FILE_DIR:MeshyWasm>/meshy.wasm DESTINATION .)
+
+endif()
+
+# -------------------------------------------------------------------
 #                           Debug executable
 
 if(OCL_BUILD_MAIN)

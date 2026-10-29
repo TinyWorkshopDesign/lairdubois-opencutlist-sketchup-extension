@@ -16,6 +16,23 @@ try {
   const p = c._malloc(sq.length * 8); c.HEAPF64.set(sq, p / 8);
   log('clippy area: ' + Math.abs(c._c_get_cpath_area(p)));
 
+  const { default: createMeshy } = await import('./meshy.js');
+  const me = await createMeshy();
+  const box = ([x0, y0, z0], [x1, y1, z1]) => {
+    const v = [];
+    for (const z of [z0, z1]) for (const y of [y0, y1]) for (const x of [x0, x1]) v.push(x, y, z);
+    const q = [[0, 2, 3, 1], [4, 5, 7, 6], [0, 1, 5, 4], [2, 6, 7, 3], [0, 4, 6, 2], [1, 3, 7, 5]];
+    return { vertices: v, face_indices: q.flatMap(([a, b, c, d]) => [a, b, c, a, c, d]) };
+  };
+  const mi = me.stringToNewUTF8(JSON.stringify({ operation: 'union', src_meshes: [box([0, 0, 0], [10, 10, 10])], cut_meshes: [box([5, 5, 5], [15, 15, 15])] }));
+  const mo = JSON.parse(me.UTF8ToString(me._c_operate(mi)));
+  log(`meshy union: ${mo.error ?? 'ok'}, ${mo.fragments?.length} fragment, ${mo.fragments?.[0]?.num_faces} triangles`);
+  const meshyOk = mo.fragments?.length === 1;
+
+  const { default: createImagy } = await import('./imagy.js');
+  const im = await createImagy();
+  log('imagy: version ' + im.UTF8ToString(im._c_version()) + ', FS ' + (typeof im.FS.writeFile));
+
   const { default: createPacky } = await import('./packy.js');
   const m = await createPacky();
   const mm = (v) => v / 25.4;
@@ -39,7 +56,7 @@ try {
   const sol = out.solution;
   const placed = sol ? sol.bins.reduce((s, b) => s + b.copies * b.items.length, 0) : 0;
   log(`packy: ${out.error ?? 'ok'}, ${placed}/12 parts, ${Math.round(performance.now() - t0)} ms`);
-  log(placed === 12 ? 'RESULT: PASS' : 'RESULT: FAIL');
+  log(placed === 12 && meshyOk ? 'RESULT: PASS' : 'RESULT: FAIL');
 } catch (e) {
   log('RESULT: FAIL ' + e);
 }
