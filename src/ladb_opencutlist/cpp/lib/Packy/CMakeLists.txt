@@ -93,6 +93,7 @@ if(OCL_WASM)
           -sALLOW_MEMORY_GROWTH=1
           -sSTACK_SIZE=1MB
           -sPTHREAD_POOL_SIZE=4
+          -sMALLOC=mimalloc
           -sEXPORTED_FUNCTIONS=_c_optimize_start,_c_optimize_advance,_c_optimize_cancel,_c_optimize_cancel_all,_c_version,_malloc,_free
           -sEXPORTED_RUNTIME_METHODS=UTF8ToString,stringToNewUTF8
   )
