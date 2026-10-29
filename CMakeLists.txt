@@ -32,6 +32,15 @@ if(APPLE)
   set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64" CACHE STRING "Available architectures" FORCE)
   set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/src/ladb_opencutlist/bin/osx/)
 endif()
+if(EMSCRIPTEN)
+  # WebAssembly build (emcmake cmake ...). Libraries are built static and
+  # linked into one ES module per library (see OCL_WASM in each library).
+  set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/src/ladb_opencutlist/bin/wasm/)
+  set(OCL_WASM ON)
+  # Native WebAssembly exceptions: Packy and PackingSolver rely on try/catch.
+  add_compile_options(-fwasm-exceptions)
+  add_link_options(-fwasm-exceptions)
+endif()
 set(OCL_BUILD_MAIN OFF CACHE BOOL "Enables compilation of debug executables")
 
 option(BUILD_SHARED_LIBS ON)
