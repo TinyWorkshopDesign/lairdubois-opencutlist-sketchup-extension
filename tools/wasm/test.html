@@ -1,0 +1,46 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>OpenCutList wasm test</title>
+<pre id="log">running…</pre>
+<script type="module">
+const log = (s) => {
+  document.getElementById('log').textContent += '\n' + s;
+  fetch('/log?' + encodeURIComponent(s)).catch(() => {});
+};
+try {
+  log('crossOriginIsolated: ' + self.crossOriginIsolated);
+
+  const { default: createClippy } = await import('./clippy.js');
+  const c = await createClippy();
+  const sq = [4, 0, 0, 0, 10, 0, 10, 10, 0, 10];
+  const p = c._malloc(sq.length * 8); c.HEAPF64.set(sq, p / 8);
+  log('clippy area: ' + Math.abs(c._c_get_cpath_area(p)));
+
+  const { default: createPacky } = await import('./packy.js');
+  const m = await createPacky();
+  const mm = (v) => v / 25.4;
+  const input = m.stringToNewUTF8(JSON.stringify({
+    problem_type: 'rectangleguillotine',
+    parameters: { length_truncate_factor: 254, optimization_mode: 'not-anytime-deterministic', not_anytime_tree_search_queue_size: 16, verbosity_level: 0 },
+    instance: {
+      objective: 'bin-packing-with-leftovers',
+      parameters: { cut_type: 'non-exact', cut_thickness: mm(3.2), number_of_stages: 3, first_stage_orientation: 'horizontal' },
+      bin_types: [{ copies: 10, width: mm(2800), height: mm(2070), cost: 1 }],
+      item_types: [[600, 400, 6], [720, 560, 4], [1200, 300, 2]].map(([l, w, n]) => ({ copies: n, width: mm(l), height: mm(w), oriented: false })),
+    },
+  }));
+  const run = JSON.parse(m.UTF8ToString(m._c_optimize_start(input)));
+  const t0 = performance.now();
+  let out;
+  do {
+    await new Promise((r) => setTimeout(r, 50));
+    out = JSON.parse(m.UTF8ToString(m._c_optimize_advance(run.run_id)));
+  } while (out.running && performance.now() - t0 < 30000);
+  const sol = out.solution;
+  const placed = sol ? sol.bins.reduce((s, b) => s + b.copies * b.items.length, 0) : 0;
+  log(`packy: ${out.error ?? 'ok'}, ${placed}/12 parts, ${Math.round(performance.now() - t0)} ms`);
+  log(placed === 12 ? 'RESULT: PASS' : 'RESULT: FAIL');
+} catch (e) {
+  log('RESULT: FAIL ' + e);
+}
+</script>
