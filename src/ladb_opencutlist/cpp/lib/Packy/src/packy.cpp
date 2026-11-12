@@ -36,8 +36,8 @@ DLL_EXPORTS char* c_optimize_start(
     // Create a new run structure in the run map
     Run& run = runs_[run_id];
 
-    // Define run future
-    run.optimize_future = std::async(std::launch::async, [s_input, &run]() {
+    // The run, as a function
+    auto optimize = [s_input, &run]() {
         json j_output = json{
             {"run_id", run.id}
         };
@@ -74,7 +74,20 @@ DLL_EXPORTS char* c_optimize_start(
         run.solver_ptr = nullptr;
 
         return std::move(j_output);
-    }).share();
+    };
+
+#ifdef PACKY_SINGLE_THREAD
+    // Single-threaded build (WebAssembly without pthreads): the run completes
+    // here, before c_optimize_start returns. The first c_optimize_advance
+    // answers the final output. Nothing can cancel a run while it computes:
+    // the host cancels by terminating the Worker the module runs in.
+    std::promise<json> done;
+    done.set_value(optimize());
+    run.optimize_future = done.get_future().share();
+#else
+    // Run on its own thread; c_optimize_advance polls it
+    run.optimize_future = std::async(std::launch::async, optimize).share();
+#endif
 
     str_output_ = json{
         {"running", true},

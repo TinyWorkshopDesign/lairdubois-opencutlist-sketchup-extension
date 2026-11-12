@@ -1,4 +1,4 @@
-// Smoke test for the Packy WebAssembly module (pthreads).
+// Smoke test for the Packy WebAssembly module (single-threaded or pthreads).
 // Usage: node tools/wasm/test-packy.mjs <dir containing packy.js>
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -12,8 +12,8 @@ const call = (ptr) => JSON.parse(m.UTF8ToString(ptr));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Starts a run and polls it like the SketchUp extension does.
-// The input string must stay allocated while the run is going: the
-// solver thread reads it after c_optimize_start has returned.
+// The input string must stay allocated while the run is going: in the
+// threaded build the solver thread reads it after c_optimize_start has returned.
 async function optimize(input, { timeoutMs = 60000 } = {}) {
   const inputPtr = m.stringToNewUTF8(JSON.stringify(input));
   const started = performance.now();
@@ -117,4 +117,4 @@ console.log('Packy version', m.UTF8ToString(m._c_version()));
 }
 
 console.log('Packy: all OK');
-process.exit(0); // pthread workers keep Node alive otherwise
+process.exit(0); // pthread workers keep Node alive otherwise (threaded build)

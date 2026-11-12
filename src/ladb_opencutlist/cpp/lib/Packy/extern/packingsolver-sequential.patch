@@ -1,0 +1,115 @@
+diff --git i/src/box/optimize.cpp w/src/box/optimize.cpp
+index 0d8a2784..1aa8c44f 100644
+--- i/src/box/optimize.cpp
++++ w/src/box/optimize.cpp
+@@ -76,6 +76,7 @@ void optimize_onedimensional_bound(
+     onedimensional::TrivialBoundParameters onedim_trivial_bound_parameters;
+     onedim_trivial_bound_parameters.verbosity_level = 0;
+     onedim_trivial_bound_parameters.timer = parameters.timer;
++    onedim_trivial_bound_parameters.optimization_mode = onedim_parameters.optimization_mode;
+     onedim_trivial_bound_parameters.timer.add_end_boolean(&algorithm_formatter.end_boolean());
+     onedim_trivial_bound_parameters.linear_programming_solver_name = parameters.linear_programming_solver_name;
+     // With many item types, solving the onedimensional instance may take a
+diff --git i/src/boxstacks/optimize.cpp w/src/boxstacks/optimize.cpp
+index 7cb6e79d..1ce7dfc8 100644
+--- i/src/boxstacks/optimize.cpp
++++ w/src/boxstacks/optimize.cpp
+@@ -68,6 +68,7 @@ void optimize_onedimensional_bound(
+     onedimensional::TrivialBoundParameters onedim_trivial_bound_parameters;
+     onedim_trivial_bound_parameters.verbosity_level = 0;
+     onedim_trivial_bound_parameters.timer = parameters.timer;
++    onedim_trivial_bound_parameters.optimization_mode = onedim_parameters.optimization_mode;
+     onedim_trivial_bound_parameters.timer.add_end_boolean(&algorithm_formatter.end_boolean());
+     onedim_trivial_bound_parameters.linear_programming_solver_name = parameters.linear_programming_solver_name;
+     // With many item types, solving the onedimensional instance may take a
+diff --git i/src/irregular/optimize.cpp w/src/irregular/optimize.cpp
+index acd48fae..f1335e69 100644
+--- i/src/irregular/optimize.cpp
++++ w/src/irregular/optimize.cpp
+@@ -221,6 +221,7 @@ void optimize_onedimensional_bound(
+     onedimensional::TrivialBoundParameters onedim_trivial_bound_parameters;
+     onedim_trivial_bound_parameters.verbosity_level = 0;
+     onedim_trivial_bound_parameters.timer = parameters.timer;
++    onedim_trivial_bound_parameters.optimization_mode = onedim_parameters.optimization_mode;
+     onedim_trivial_bound_parameters.timer.add_end_boolean(&algorithm_formatter.end_boolean());
+     onedim_trivial_bound_parameters.linear_programming_solver_name = parameters.linear_programming_solver_name;
+     // With many item types, solving the onedimensional instance may take a
+diff --git i/src/onedimensional/optimize.cpp w/src/onedimensional/optimize.cpp
+index 82233686..31e37d38 100644
+--- i/src/onedimensional/optimize.cpp
++++ w/src/onedimensional/optimize.cpp
+@@ -59,6 +59,7 @@ void optimize_trivial_bound(
+     TrivialBoundParameters trivial_bound_parameters;
+     trivial_bound_parameters.verbosity_level = 0;
+     trivial_bound_parameters.timer = parameters.timer;
++    trivial_bound_parameters.optimization_mode = parameters.optimization_mode;
+     trivial_bound_parameters.timer.add_end_boolean(&algorithm_formatter.end_boolean());
+     trivial_bound_parameters.linear_programming_solver_name = parameters.linear_programming_solver_name;
+     trivial_bound_parameters.dynamic_programming_subset_sum_maximum_size
+diff --git i/src/onedimensional/trivial_bound.cpp w/src/onedimensional/trivial_bound.cpp
+index 715b3482..2669f418 100644
+--- i/src/onedimensional/trivial_bound.cpp
++++ w/src/onedimensional/trivial_bound.cpp
+@@ -189,7 +189,10 @@ void trivial_bound_impl(
+         kp_parameters.verbosity_level = 0;
+         kp_parameters.timer = parameters.timer;
+         kp_parameters.timer.add_end_boolean(&algorithm_formatter.end_boolean());
+-        kp_parameters.optimization_mode = OptimizationMode::NotAnytime;
++        kp_parameters.optimization_mode
++            = (parameters.optimization_mode == OptimizationMode::NotAnytimeSequential)?
++            OptimizationMode::NotAnytimeSequential:
++            OptimizationMode::NotAnytime;
+         kp_parameters.linear_programming_solver_name = parameters.linear_programming_solver_name;
+         kp_parameters.dynamic_programming_subset_sum_maximum_size
+             = parameters.dynamic_programming_subset_sum_maximum_size;
+diff --git i/src/onedimensional/trivial_bound.hpp w/src/onedimensional/trivial_bound.hpp
+index b6031925..94b646f3 100644
+--- i/src/onedimensional/trivial_bound.hpp
++++ w/src/onedimensional/trivial_bound.hpp
+@@ -47,6 +47,13 @@ struct TrivialBoundParameters: packingsolver::Parameters<Instance, Solution, Out
+      * 'OptimizeParameters::dynamic_programming_knapsack_maximum_number_of_states').
+      */
+     Counter dynamic_programming_knapsack_maximum_number_of_states = (1 << 20);
++
++    /**
++     * Optimization mode of the knapsack solved for the bound of a variable-sized
++     * bin packing. 'NotAnytimeSequential' keeps it on the calling thread; any
++     * other mode lets it run its algorithms in parallel ('NotAnytime').
++     */
++    OptimizationMode optimization_mode = OptimizationMode::NotAnytime;
+ };
+ 
+ Output trivial_bound(
+diff --git i/src/rectangle/optimize.cpp w/src/rectangle/optimize.cpp
+index 7fbc6b83..3d904337 100644
+--- i/src/rectangle/optimize.cpp
++++ w/src/rectangle/optimize.cpp
+@@ -208,6 +208,7 @@ void optimize_onedimensional_bound(
+     onedimensional::TrivialBoundParameters onedim_trivial_bound_parameters;
+     onedim_trivial_bound_parameters.verbosity_level = 0;
+     onedim_trivial_bound_parameters.timer = parameters.timer;
++    onedim_trivial_bound_parameters.optimization_mode = onedim_parameters.optimization_mode;
+     onedim_trivial_bound_parameters.timer.add_end_boolean(&algorithm_formatter.end_boolean());
+     onedim_trivial_bound_parameters.linear_programming_solver_name = parameters.linear_programming_solver_name;
+     // With many item types, solving the onedimensional instance may take a
+diff --git i/src/rectangleguillotine/optimize.cpp w/src/rectangleguillotine/optimize.cpp
+index caa4c87a..9b859234 100644
+--- i/src/rectangleguillotine/optimize.cpp
++++ w/src/rectangleguillotine/optimize.cpp
+@@ -188,11 +188,15 @@ void optimize_onedimensional_bound(
+     onedim_parameters.verbosity_level = 0;
+     onedim_parameters.timer = parameters.timer;
+     onedim_parameters.timer.add_end_boolean(&algorithm_formatter.end_boolean());
+-    onedim_parameters.optimization_mode = OptimizationMode::NotAnytime;
++    onedim_parameters.optimization_mode
++        = (parameters.optimization_mode == OptimizationMode::NotAnytimeSequential)?
++        OptimizationMode::NotAnytimeSequential:
++        OptimizationMode::NotAnytime;
+     onedim_parameters.linear_programming_solver_name = parameters.linear_programming_solver_name;
+     onedimensional::TrivialBoundParameters onedim_trivial_bound_parameters;
+     onedim_trivial_bound_parameters.verbosity_level = 0;
+     onedim_trivial_bound_parameters.timer = parameters.timer;
++    onedim_trivial_bound_parameters.optimization_mode = onedim_parameters.optimization_mode;
+     onedim_trivial_bound_parameters.timer.add_end_boolean(&algorithm_formatter.end_boolean());
+     onedim_trivial_bound_parameters.linear_programming_solver_name = parameters.linear_programming_solver_name;
+     // With many item types, solving the onedimensional instance may take a

@@ -1,0 +1,41 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Packy in Workers</title>
+<pre id="log">running…</pre>
+<script type="module">
+// The single-threaded Packy in plain module Workers, on a page that need not be
+// cross-origin isolated: one module per Worker, one run per Worker at a time.
+// Serve with: node tools/wasm/serve.mjs <dir with packy.js> --no-isolation
+const log = (s) => {
+  document.getElementById('log').textContent += '\n' + s;
+  fetch('/log?' + encodeURIComponent(s)).catch(() => {});
+};
+const mm = (v) => v / 25.4;
+const job = (seed) => ({
+  problem_type: 'rectangleguillotine',
+  parameters: { length_truncate_factor: 254.0, optimization_mode: 'not-anytime-deterministic', not_anytime_tree_search_queue_size: 16, verbosity_level: 0 },
+  instance: {
+    objective: 'bin-packing-with-leftovers',
+    parameters: { cut_type: 'non-exact', cut_thickness: mm(3.2), number_of_stages: 3, first_stage_orientation: 'horizontal' },
+    bin_types: [{ copies: 10, width: mm(2800), height: mm(2070), cost: 1 }],
+    item_types: [[600, 400, 6], [720, 560, 4], [1200, 300, 2 + seed]].map(([l, w, n]) => ({ copies: n, width: mm(l), height: mm(w), oriented: false })),
+  },
+});
+try {
+  log('crossOriginIsolated: ' + self.crossOriginIsolated + ', SharedArrayBuffer: ' + (typeof SharedArrayBuffer));
+  const n = Math.min(4, navigator.hardwareConcurrency || 2);
+  const t0 = performance.now();
+  const results = await Promise.all(Array.from({ length: n }, (_, i) => new Promise((resolve, reject) => {
+    const w = new Worker('./worker-packy.mjs', { type: 'module' });
+    w.onmessage = (e) => { w.terminate(); resolve(e.data); };
+    w.onerror = (e) => reject(new Error(e.message));
+    w.postMessage(job(i));
+  })));
+  results.forEach((r, i) => log(`worker ${i}: ${r.error ?? `${r.bins} bin(s), ${r.placed} parts, ${r.ms} ms`}`));
+  const ok = results.every((r) => !r.error && r.placed === 12 + results.indexOf(r));
+  log(`${n} Workers in ${Math.round(performance.now() - t0)} ms`);
+  log(ok ? 'Packy in Workers: all OK' : 'Packy in Workers: FAILED');
+} catch (e) {
+  log('ERROR ' + e.message);
+}
+</script>

@@ -1,6 +1,8 @@
 // Minimal static server for the browser test, with the headers that make the
 // page cross-origin isolated (needed for SharedArrayBuffer, i.e. Packy's threads).
-// Usage: node tools/wasm/serve.mjs <wasm dir> [port]
+// Usage: node tools/wasm/serve.mjs <wasm dir> [port] [--no-isolation]
+// --no-isolation leaves the headers out, as a host that can't isolate its pages
+// (the single-threaded Packy must load there; test-worker.html checks it).
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -8,7 +10,8 @@ import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const wasmDir = path.resolve(process.argv[2] ?? 'src/ladb_opencutlist/bin/wasm');
-const port = Number(process.argv[3] ?? 8765);
+const isolate = !process.argv.includes('--no-isolation');
+const port = Number(process.argv.slice(3).find((a) => /^\d+$/.test(a)) ?? 8765);
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.wasm': 'application/wasm' };
 
 http.createServer((req, res) => {
@@ -19,8 +22,7 @@ http.createServer((req, res) => {
   if (!file) { res.writeHead(404).end(); return; }
   res.writeHead(200, {
     'Content-Type': types[path.extname(file)] ?? 'application/octet-stream',
-    'Cross-Origin-Opener-Policy': 'same-origin',
-    'Cross-Origin-Embedder-Policy': 'require-corp',
+    ...(isolate ? { 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Embedder-Policy': 'require-corp' } : {}),
   });
   fs.createReadStream(file).pipe(res);
-}).listen(port, () => console.log(`http://localhost:${port}/test.html`));
+}).listen(port, () => console.log(`http://localhost:${port}/${isolate ? 'test.html' : 'test-worker.html'}${isolate ? '' : ' (not cross-origin isolated)'}`));

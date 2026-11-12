@@ -283,6 +283,14 @@ namespace Packy {
 
         json optimize() override {
 
+#ifdef PACKY_SINGLE_THREAD
+            // Single-threaded build (WebAssembly without pthreads): no thread may be
+            // started, so the pre-process runs on the calling thread and PackingSolver
+            // runs its algorithms one after the other.
+            number_of_threads_for_pre_process_ = 1;
+            parameters_.optimization_mode = OptimizationMode::NotAnytimeSequential;
+#endif
+
             auto instance = pre_process();
 
             // Write the instance to a file for debug purpose with PackingSolver format

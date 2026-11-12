@@ -2,10 +2,21 @@
 #                             Packy
 
 if(OCL_WASM)
-  # Packy runs the solver on its own thread (std::async), so the whole
-  # Packy tree, PackingSolver included, is built with pthreads.
-  add_compile_options(-pthread)
-  add_link_options(-pthread)
+  # By default the WebAssembly module is single-threaded: no pthreads, no
+  # SharedArrayBuffer, so it loads in any Worker or page, cross-origin
+  # isolated or not. c_optimize_start then computes the run before it returns
+  # (see PACKY_SINGLE_THREAD), and a host runs several modules in parallel
+  # Workers instead.
+  # OCL_WASM_PTHREADS=ON builds the threaded module: the solver runs on its
+  # own thread (std::async), so the whole Packy tree, PackingSolver included,
+  # is built with pthreads and needs SharedArrayBuffer.
+  option(OCL_WASM_PTHREADS "Build Packy's WebAssembly module with pthreads" OFF)
+  if(OCL_WASM_PTHREADS)
+    add_compile_options(-pthread)
+    add_link_options(-pthread)
+  else()
+    add_compile_definitions(PACKY_SINGLE_THREAD)
+  endif()
 endif()
 
 # -------------------------------------------------------------------
@@ -75,7 +86,8 @@ install(TARGETS Packy RUNTIME DESTINATION lib)
 if(OCL_WASM)
 
   # packy.js (ES module factory: createPacky) + packy.wasm.
-  # Needs SharedArrayBuffer, so a browser host must be cross-origin isolated.
+  # With OCL_WASM_PTHREADS it needs SharedArrayBuffer, so a browser host must
+  # be cross-origin isolated.
   add_executable(PackyWasm ${LIBRARY_HEADERS} ${LIBRARY_SOURCES})
   set_target_properties(PackyWasm PROPERTIES OUTPUT_NAME packy SUFFIX ".js")
   target_include_directories(PackyWasm PUBLIC include)
@@ -84,6 +96,10 @@ if(OCL_WASM)
   target_link_libraries(PackyWasm PUBLIC PackingSolver::rectangleguillotine)
   target_link_libraries(PackyWasm PUBLIC PackingSolver::irregular)
   target_compile_features(PackyWasm PRIVATE cxx_std_17)
+  if(OCL_WASM_PTHREADS)
+    # mimalloc only pays off with threads (dlmalloc takes one global lock)
+    target_link_options(PackyWasm PRIVATE -sPTHREAD_POOL_SIZE=4 -sMALLOC=mimalloc)
+  endif()
   target_link_options(PackyWasm PRIVATE
           --no-entry
           -sMODULARIZE=1
@@ -92,8 +108,6 @@ if(OCL_WASM)
           -sENVIRONMENT=web,worker,node
           -sALLOW_MEMORY_GROWTH=1
           -sSTACK_SIZE=1MB
-          -sPTHREAD_POOL_SIZE=4
-          -sMALLOC=mimalloc
           -sEXPORTED_FUNCTIONS=_c_optimize_start,_c_optimize_advance,_c_optimize_cancel,_c_optimize_cancel_all,_c_version,_malloc,_free
           -sEXPORTED_RUNTIME_METHODS=UTF8ToString,stringToNewUTF8
   )
