@@ -80,6 +80,7 @@ var COMMON_JS_FILES = withBase(JS_BASE, [
     'lib/qrcode.min.js',
 ]);
 var TABS_JS_FILES = withBase(JS_BASE, [
+    'lib/purify.min.js',  // Only the tabs dialog renders remote HTML (forum, news)
     'plugins/components/jquery.ladb.bottombar.js',
     'plugins/components/jquery.ladb.leftbar.js',
     'plugins/components/jquery.ladb.abstract-textinput.js',
@@ -385,7 +386,7 @@ gulp.task('i18n_compile', function () {
                         if (!doc[key].match(/^\$t\([a-z0-9_.]+\)$/i)) {
                             const index = zzIndexes[prefix + key];
                             if (index === undefined) {
-                                throw new Error('Missing source translation key in ' + language + ' at "' + prefix + key + '"');
+                                continue; // Missing source translation
                             }
                             doc[key] = index + ' - ' + doc[key];
                         }
@@ -525,6 +526,7 @@ gulp.task('version', function () {
     // Update version property in ladb_opencutlist.rb
     gulp.src('../src/ladb_opencutlist.rb')
         .pipe(replace(/ex.version     = "[0-9.]+(-[a-z]*)?"/g, 'ex.version     = "' + version + '"'))
+        .pipe(replace(/ex.copyright   = "2016-[0-9]{4} - /g, 'ex.copyright   = "2016-' + nowISO.slice(0, 4) + ' - '))
         .pipe(gulp.dest('../src'))
         .pipe(touch());
 

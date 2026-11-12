@@ -162,8 +162,6 @@ core:
   warning:
     dev: |
       Ви використовуєте версію *OpenCutList*, яка **розробляється**.
-      Ця версія доступна лише для тестування.
-      Не рекомендується використовувати її у виробництві.
 
       Щоб повідомити про помилку: <a href="mailto:opencutlist@lairdubois.fr?subject=Bug%20Report%20OpenCutList%20{{ version }}%20(build: {{ build }})" target="_blank">opencutlist@lairdubois.fr</a>.
     not_available_in_context: Недоступно в цьому контексті
@@ -1156,7 +1154,7 @@ tab:
       option_irregular_allowed_rotations_free: Безкоштовно
       option_irregular_allow_mirroring: Дозволити відзеркалювання
       option_irregular_allow_mirroring_help: |
-        Визначає, чи дозволено відзеркалювання деталі деталі.
+        Визначає, чи дозволено відзеркалювання деталі.
       option_irregular_allow_mirroring_0: $t(default.no)
       option_irregular_allow_mirroring_1: $t(default.yes)
       option_irregular_leftover_mode: Напрямок поширення
@@ -1468,6 +1466,7 @@ tab:
       option_pins_length_1: Мала
       option_pins_length_2: Середня
       option_pins_length_3: Велика
+      option_pins_length_4: $t(default.automatic)
       option_pins_length_help: Дозволяє вибрати довжину стрілки шпильок.
       option_pins_direction: Напрямок
       option_pins_direction_0: По Червоній осі
@@ -1722,6 +1721,7 @@ tab:
       formats: Формати
       cut_options: Параметри розкрою
       estimate_options: Опції оцінки
+      export_options: Опції експорту
       attributes: Атрибути
       thickness: Товщина
       thickness_help: |
@@ -1783,6 +1783,29 @@ tab:
       raw_estimated_1: Об'єм використаного матеріалу
       multiplier_coefficient: Коефіцієнт надбавки
       multiplier_coefficient_help: Використовується для позначення коефіцієнта множення, застосованого до грубого об'єму.
+      machining_separated: Геометрія обробки
+      machining_separated_help: |
+        Дозволяє визначити, як геометрія обробки цього матеріалу експортується у 2D (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_separated_0)**
+        Геометрія обробки віднімається від форми деталі та об'єднується з її шарами глибини, ніби твердотільна операція виконувалася в геометрії деталі.
+        *Геометрія обробки, що виступає за межі, обрізається.*
+
+        **$t(tab.materials.edit_material.machining_separated_1)**
+        Деталь зберігає свою початкову форму. Кожна геометрія обробки експортується як є, без об'єднання з іншими, на шар `MACHININGS` для кожної глибини, названий за матеріалом.
+      machining_separated_0: Вирізані в деталі
+      machining_separated_1: Відокремлені на власних шарах
+      machining_material_colored: Кольори під час експорту
+      machining_material_colored_help: |
+        Дозволяє визначити кольори відокремленої обробки у 2D-експорті (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_material_colored_1)**
+        Контур обробки набуває кольору цього матеріалу, без заливки.
+
+        **$t(tab.materials.edit_material.machining_material_colored_0)**
+        Обробка набуває кольорів того, що вона вирізає в деталі: кольорів отворів, якщо вони наскрізні, інакше кольорів порожнин. Корисно для верстатів, які визначають тип різу за кольорами.
+      machining_material_colored_0: Автоматичні
+      machining_material_colored_1: Колір матеріалу
       std_attributes_dim_placeholder: Виберіть розмір
       std_volumic_masses: Густина
       std_volumic_masses_help: Дозволяє визначити масу об'єму для всіх розмірів, а також для кожного типорозміру матеріалу.
@@ -1887,8 +1910,8 @@ tab:
       shadows_face_sun: Тінь перед сонцем
       no_scale_mask: Масштабування та розтягування
       no_scale_mask_0: Розтягування вздовж червоної осі (X)
-      no_scale_mask_1: Розтягування вздовж червоної осі (Y)
-      no_scale_mask_2: Розтягування вздовж червоної осі (Z)
+      no_scale_mask_1: Розтягування вздовж зеленої осі (Y)
+      no_scale_mask_2: Розтягування вздовж синьої осі (Z)
       no_scale_mask_3: Розтягування по червоній/синій площині (X+Z)
       no_scale_mask_4: Розтягування по зеленій/синій площині (Y+Z)
       no_scale_mask_5: Розтягування по червоній/зеленій площині (X+Y)
@@ -1906,7 +1929,7 @@ tab:
       formula: Формула
       old_name: Оригінальна назва
       new_name: Нове ім'я
-      count: Примітка
+      count: Кількість
     create_container:
       title_group: Створення групи
       title_component: Створення компонента
@@ -1934,85 +1957,6 @@ tab:
         Ваша модель наразі не має жодного екземпляру для відображення тут.
         Екземпляр - це **група** або **компонент**, розміщений на сцені.
     obsolete_base: Щоб залишатися синхронізованим, вам потрібно повторно згенерувати структуру.
-  # @no-translate
-  importer:
-    label: Імпорт
-    title: Імпорт деталей
-    help: |
-      Ця функція дозволяє вам імпортувати деталі (паралелепіпедної форми) у вашу модель із файлу [CSV](https://uk.wikipedia.org/wiki/CSV).
-      Таким чином, ви зможете використовувати функціоеальність *OpenCutList*, генеруючи свої деталі за допомогою стороннього програмного забезпечення, відмінного від *SketchUp*.
-      Щоб розпочати, натисніть кнопку **Відкрити файл CSV**.
-    open_csv: Відкрити файл CSV
-    import_to_model: Імпорт в модель
-    load:
-      title: Завантажити файл CSV
-      info_0: |
-        Виберіть параметри, необхідні для правильного читання файлу:
-        **{{ filename }}**.
-      info_1: |
-        *Одиниця виміру, налаштована в шаблоні: **{{ unit }}**.
-        Ця одиниця буде використана для розмірів, одиниця яких не вказана*.
-      options: Параметри завантаження
-      option_col_sep: Роздільник
-      option_col_sep_tab: Табулятор
-      option_col_sep_comma: Кома
-      option_col_sep_semicolon: Крапка з комою
-      option_first_line_headers: Заголовок рядка
-      option_first_line_headers_0: Дані
-      option_first_line_headers_1: Заголовки стовпців
-    import:
-      title: Імпорт деталей у модель
-      info_0: |
-        Ви збираєтеся імпортувати **{{ count }} деталь** у модель.
-        Цю деталь буде розміщено на головній сцені.
-      info_0_plural: |
-        Ви збираєтеся імпортувати **{{ count }} деталей** у модель.
-        Ці деталі будуть розміщені на головній сцені.
-      info_1: Натисніть **Імпорт** для підтвердження дії.
-      options: |
-        Модель вже містить *деталі*, *визначення* або *матеріали*.
-        Виберіть параметри імпорту, які відповідають вашим потребам.
-      option_remove_all_?: Що робити?
-      option_remove_all_false: Додати деталі до існуючих
-      option_remove_all_true: Відмінити все!
-      option_keep_definitions_settings: Зберегти налаштування визначень
-      option_keep_materials_settings: Зберегти налаштування матеріалів
-    column:
-      unused: Невикористаний
-      mandatory: Обов'язкові поля
-      optional: Необов'язкові поля
-      name: Позначення
-      count: Кількість
-      bbox_length: Довжина - фактична
-      bbox_width: Ширина - фактична
-      bbox_thickness: Товщина - фактична
-      material: Матеріал
-      tags: Мітки
-    tooltip:
-      errors: Ця деталь не буде імпортована, оскільки містить помилки
-      warnings: Ця деталь буде імпортована, але вона містить наступні попередження
-    error:
-      no_model: Жодна модель не відкрита. Неможливо завантажити деталі в порожнечу ;)
-      file_not_found: "Файл не знайдено: **{{ filename }}**"
-      bad_extension: Файл *{{ filename }}* не має розширення **.CSV** або **.TSV**.
-      failed_to_load_csv_file: |
-        Не вдається завантажити файл CSV: **{{ error }}**
-        *Перевірте, чи вибрали ви правильний роздільник даних.*
-      empty_file: Файл, здається, порожній або його неможливо прочитати правильно.
-      no_importable_part: Жодні деталі не можна імпортувати. Призначте обов'язкові поля у відповідних стовпцях.
-      invalid_name: Недійсне позначення
-      invalid_length: Недійсна довжина
-      invalid_width: Недійсна ширина
-      invalid_thickness: Недійсна товщина
-      failed_to_import: Помилка імпорту.
-    warning:
-      invalid_count: Недійсна кількість
-      invalid_material: Недійсний матеріал
-    success:
-      imported_title: Імпорт завершено
-      imported_body: "{{ count }} деталь успішно імпортовано!"
-      imported_body_plural: "{{ count }} деталей успішно імпортовано!"
-    obsolete_base: Щоб зберегти синхронізацію, ви повинні перезавантажити файл CSV.
   importers:
     default:
       open_file: Відкрити файл {{ extension }}
@@ -2046,7 +1990,7 @@ tab:
         option_col_sep_tab: Табулятор
         option_col_sep_comma: Кома
         option_col_sep_semicolon: Крапка з комою
-        option_first_line_headers: Заголовок рядка
+        option_first_line_headers: Рядок заголовків
         option_first_line_headers_0: Дані
         option_first_line_headers_1: Заголовки стовпців
       import:
@@ -2146,7 +2090,7 @@ tab:
           subtract_machinings_failed: "Не вдалося вирізати обробку в цих деталях, тому її намальовано: {{ names }}"
         old_name: Оригінальна назва
         new_name: Нове ім'я
-        count: Примітка
+        count: Кількість
         formula:
           part: Деталь
           project: Проєкт
@@ -2249,7 +2193,7 @@ tab:
     font_size: Розмір тексту
     font_size_auto: $t(default.automatic)
     font_size_normal: Нормальний
-    font_size_small: Мала
+    font_size_small: Малий
     font_size_tiny: Дуже малий
     print_margin: Поля друку
     print_margin_normal: Нормальні
@@ -2315,10 +2259,10 @@ tab:
         failed_to_import_invalid_hexdigest: Цей файл було змінено. Його не можна імпортувати.
         failed_to_import_bad_file_format: Недійсний формат файлу.
   about:
-    label: Пропозиції
+    label: Про програму
     title: Пропозиції
     version: Версія
-    credits: Технічні характеристики
+    credits: Технічні подяки
     credits_authors: |
       *OpenCutList* розроблений [Борис Болант](https://www.lairdubois.fr/@borisbeaulant) і [Мартін Мюллер](https://www.lairdubois.fr/@mobilarte). *Список [співавторів](https://github.com/lairdubois/lairdubois-opencutlist-sketchup-extension/graphs/contributors)*.
     credits_translations: Переклади
@@ -2336,9 +2280,9 @@ tab:
       - Soul Issam (*арабська*), без інтерфейсу зправа на ліво
       - Nguyen Ngoc Tan (*в’єтнамська*)
       - [刘涛](https://www.liutao91.cn), Martin Pan Chiu Ng (*спрощена китайська*)
-      - Dany Dhondt, Eric Lugtigheid, Koen Dejonckheere (*голландський*)
+      - Dany Dhondt, Eric Lugtigheid, Koen Dejonckheere (*голландська*)
       - Zoltán Nagy, Roland Kovács (*угорська*)
-      - Milan Divovic (*сербський*)
+      - Milan Divovic (*сербська*)
     credits_description: |
       Розробка цього розширення є частиною проекту платформи спільного доступу [L'Air du Bois](https://www.lairdubois.fr).
       І як такий, він також є *Open Source* і доступний під [GNU GPLv3](https://github.com/lairdubois/lairdubois-opencutlist-sketchup-extension/blob/master/LICENSE) на своєму [репозиторій GitHub](https://github.com/lairdubois/lairdubois-opencutlist-sketchup-extension).
@@ -2444,7 +2388,7 @@ tool:
     action_option_options_pull_centered: Центроване видавлювання
     action_option_options_pull_centered_status: Центроване видавлювання на першій точці
     action_option_options_pull_locked_status: Блокування підйому по осі
-    action_option_options_draw_in: Втягнути
+    action_option_options_draw_in: Малювати в
     action_option_options_draw_in_0: Малювати в активному елементі
     action_option_options_draw_in_1: Намалювати деталь у батьківському контейнері у початковій точці
     action_option_options_draw_in_status: Намалювати деталь у батьківському контейнері, на який вказує перша точка
@@ -2459,7 +2403,7 @@ tool:
       part_created_plural: "Створено {{ count }} нових деталей: {{ name }}"
   smart_build:
     title: Створити
-    action_0: Створити розділювачі
+    action_0: Розмістити модуль
     action_0_status: Побудуйте розділювач у порожнині, утвореній групою наявних деталей
     action_0_state_0_status: Натисніть на стінку, щоб створити перегородку
     action_0_state_1_status: Натисніть на стінку, щоб створити перегородки
@@ -2662,12 +2606,26 @@ tool:
     action_4_status: Створіть деталь, що відповідає перетину кількох деталей
     action_4_state_0_status: Виберіть деталь А
     action_4_state_1_status: Виберіть деталь B
+    action_5: Розрізати
+    action_5_status: Розрізати одну або кілька деталей площиною
+    action_5_state_1_status: Натисніть на опорну грань у будь-якому місці моделі
+    action_5_state_1_arrows_status: Розрізати перпендикулярно до осі від кінця виділення
+    action_5_state_1b_status: Натисніть, щоб розмістити точку {{ index }} з 3 опорної площини в будь-якому місці моделі
+    action_5_state_1b_arrows_status: Фіксація на осі
+    action_5_state_1c_status: Натисніть, щоб підтвердити опорну площину, або Esc, щоб видалити останню точку
+    action_5_state_2_status: Натисніть, щоб розрізати деталі, або введіть відстань
+    action_5_state_2a_status: Натисніть, щоб розмістити січну площину, або введіть відстань
+    action_5_state_2_arrows_status: Змінити вісь
+    action_5_state_3_status: Натисніть з боку частини, яку потрібно зберегти
+    action_5_state_4_status: Натисніть, щоб розрізати деталі на {{ number }} частин, або введіть інтервали
     action_option_group_thickness: Товщина
     action_option_group_stretch_measure_type: Вимірювання
     action_option_group_axes: Осі
     action_option_group_paneling_joint_type: Збірка
     action_option_group_paneling_direction: Напрямок
     action_option_group_csg_operation: Операція
+    action_option_group_slice_mode: Режим
+    action_option_group_slice_reference: Опора
     action_option_group_options: Опції
     action_option_thickness_thickness: Товщина
     action_option_thickness_thickness_status: Визначає товщину панелей
@@ -2680,6 +2638,10 @@ tool:
     action_option_paneling_joint_type_miter_status: Косий зріз
     action_option_paneling_direction_inward_status: В середині
     action_option_paneling_direction_outward_status: Ззовні
+    action_option_slice_mode_slice_status: Розрізати деталі та зберегти всі частини
+    action_option_slice_mode_cut_status: Обрізати деталі та зберегти лише одну частину
+    action_option_slice_reference_face_status: Опорна площина за гранню
+    action_option_slice_reference_points_status: Опорна площина через 3 точки
     action_option_options_centered_status: Центрувати на розтягнутих елементах
     action_option_options_make_unique_status: Зробіть оновлені елементи унікальними
     action_option_options_keep_a: Консерватор А

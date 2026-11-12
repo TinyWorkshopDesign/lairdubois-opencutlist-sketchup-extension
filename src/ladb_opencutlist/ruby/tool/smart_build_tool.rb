@@ -2804,6 +2804,11 @@ module Ladb::OpenCutList
       @spacings = previous_action_handler.is_a?(self.class) ? previous_action_handler.spacings : []
 
       @picked_point = nil
+      @picked_inference_point = nil
+
+      @place_lock = nil         # { :fragment_def, :plane_manipulator, :wall_part, :point, :natural_normal } while SHIFT holds the free divider's compartment and direction
+      @place_lock_target = nil  # The model point the locked divider is aligned on, when off its normal line
+      @place_lock_out = false   # The locked divider's position falls outside its compartment
 
     end
 
@@ -2888,6 +2893,8 @@ module Ladb::OpenCutList
 
       when STATE_PLACE, STATE_DISTRIBUTE
 
+        _lock_place if tool.is_key_shift?(key) && @state == STATE_PLACE && @place_lock.nil?
+
         if tool.is_key_shift_down? && !tool.is_vcb_typing?
           if key == Kuix::VK_ADD
             _set_distribution(@number + 1, @spacings, tool, view)
@@ -2946,7 +2953,10 @@ module Ladb::OpenCutList
 
       when STATE_PLACE, STATE_DISTRIBUTE
         if tool.is_key_shift?(key)
+          locked = !@place_lock.nil?
+          _unlock_place
           _refresh
+          @picker.do_pick if locked && @picker.is_a?(SmartPicker) # Back to the compartment under the cursor, without waiting for the mouse to move
           return true
         end
         if tool.is_key_ctrl_or_option?(key) && is_quick
@@ -3023,6 +3033,11 @@ module Ladb::OpenCutList
       super
     end
 
+    def onStateChanged(old_state, new_state)
+      _unlock_place # Only a free divider is placed : a distribution takes the whole compartment
+      super
+    end
+
     # -----
 
     protected
@@ -3043,6 +3058,55 @@ module Ladb::OpenCutList
     def _refresh
       @picker.invalidate if @picker.is_a?(SmartPicker)
       super
+    end
+
+    # The locked compartment goes with the cavities it was taken from : a
+    # created divider has just cut it in two.
+    def _reset_picked_cavity
+      _unlock_place
+      super
+    end
+
+    # -----
+
+    # SHIFT locks the free divider on the compartment and the direction it
+    # currently previews : the pick is then free to roam the whole model, the
+    # point it designates only giving the divider its offset along the normal
+    # - as the Stretch's locked interior handle does. The SmartPicker's own
+    # lock keeps the active part, but cannot keep the compartment : the
+    # handler reads it off a ray through the cavities, which no longer meets
+    # them once the cursor leaves the carcass.
+    def _lock_place
+      return false unless @number == 0
+      return false unless @picked_point.is_a?(Geom::Point3d)
+      return false unless @picked_fragment_def.is_a?(SolidCavityFragmentDef)
+      return false unless @picked_plane_manipulator.is_a?(PlaneManipulator)
+      return false unless (view = Sketchup.active_model.active_view).is_a?(Sketchup::View)
+      return false if (natural_normal = _get_divider_natural_normal(@picked_plane_manipulator, @picked_fragment_def, view)).nil?
+
+      # The divider's own position : the pick slid onto the snapped inference
+      # (see #_compute_dividers), the line the lock then moves it along.
+      point = @picked_point
+      if (divider_def = _compute_dividers(@picked_point, view).to_a.first).is_a?(DividerDef)
+        point = divider_def.point
+      end
+
+      @place_lock = {
+        :fragment_def => @picked_fragment_def,
+        :plane_manipulator => @picked_plane_manipulator,
+        :wall_part => @picked_wall_part,
+        :point => point,
+        :natural_normal => natural_normal
+      }
+      @place_lock_target = nil
+      @place_lock_out = false
+      true
+    end
+
+    def _unlock_place
+      @place_lock = nil
+      @place_lock_target = nil
+      @place_lock_out = false
     end
 
     # -----
@@ -3083,6 +3147,18 @@ module Ladb::OpenCutList
       return unless (divider_defs = _compute_dividers(@picked_point, view)).is_a?(Array)
 
       color = _get_vector_color(@locked_normal, Kuix::COLOR_MAGENTA)
+
+      # A locked divider aligned on a point taken away from its normal line :
+      # link that point to the divider
+      if @place_lock && @place_lock_target.is_a?(Geom::Point3d) && @picked_point.is_a?(Geom::Point3d)
+        k_edge = Kuix::EdgeMotif3d.new
+        k_edge.start.copy!(@place_lock_target)
+        k_edge.end.copy!(@picked_point)
+        k_edge.line_stipple = Kuix::LINE_STIPPLE_SHORT_DASHES
+        k_edge.color = color
+        k_edge.on_top = true
+        @tool.append_3d(k_edge, LAYER_3D_DIVIDER_PREVIEW)
+      end
 
       divider_defs.each do |divider_def|
         divider_def.fragments.each do |fragment|
@@ -3302,10 +3378,62 @@ module Ladb::OpenCutList
     # #_snap_point_through_cavities. A divider is fitted INSIDE a compartment,
     # so whatever closes it is precisely what stands in the way.
     #
-    # The inference lost on the way costs nothing here : a divider is placed at
-    # a distance or by distribution, not on a vertex.
+    # SketchUp's inference does not take part in that pick, but the picker
+    # still runs it - and draws it. A real snap (a vertex, a midpoint, an
+    # edge : not a mere face) is kept in @picked_inference_point, for
+    # #_compute_dividers to place the free divider at its offset.
     def _snap_point(picker)
+      return _snap_point_locked(picker) if @place_lock
+      dof = picker.picked_point_degrees_of_freedom
+      @picked_inference_point = !dof.nil? && dof <= 1 ? picker.picked_point : nil
       _snap_point_through_cavities(picker)
+    end
+
+    # The SHIFT lock (see #_lock_place) : the compartment, its wall and the
+    # divider's direction stay those of the lock, the pick only moves the
+    # divider along its normal line. An inference that keeps its meaning
+    # along that line (see SmartPicker#picked_point_stable_along?) is
+    # projected on it, any other pick reads the line point closest to the
+    # mouse ray. A position outside the compartment is no position at all.
+    def _snap_point_locked(picker)
+
+      lock = @place_lock
+
+      @picked_point = nil
+      @picked_inference_point = nil
+      @picked_fragment_def = lock[:fragment_def]
+      @picked_plane_manipulator = lock[:plane_manipulator]
+      @picked_wall_part = lock[:wall_part]
+      @place_lock_target = nil
+      @place_lock_out = false
+
+      return false unless picker.is_a?(SmartPicker) && (view = picker.view).is_a?(Sketchup::View)
+      return false if (normal_3f = _get_divider_normal_3f(@picked_plane_manipulator, @picked_fragment_def, view)).nil?
+
+      normal = Geom::Vector3d.new(normal_3f)
+      line = [ lock[:point], normal ]
+
+      if picker.picked_point_stable_along?(normal)
+        target = picker.picked_point
+        point = target.project_to_line(line)
+        @place_lock_target = target unless target == point
+      else
+        ray = view.pickray(picker.pick_position.x, picker.pick_position.y)
+        return false unless ray.is_a?(Array) && ray.length == 2
+        point, _ = Geom.closest_points(line, ray)
+        return false unless point.is_a?(Geom::Point3d)
+      end
+
+      n0, n1 = _get_divider_mesh_extent(@picked_fragment_def.vertices, normal_3f)
+      d = normal_3f[0] * point.x + normal_3f[1] * point.y + normal_3f[2] * point.z
+      if d < n0 || d > n1
+        @place_lock_target = nil
+        @place_lock_out = true
+        return false
+      end
+
+      @picked_point = point
+      true
     end
 
     # The pick designates ONE compartment, and #_snap_point already knows
@@ -4178,6 +4306,18 @@ module Ladb::OpenCutList
       o0, o1 = _get_divider_measure_origins(cavities_def, fragment_def, normal_3f, n0, n1)
       d = normal_3f[0] * point.x + normal_3f[1] * point.y + normal_3f[2] * point.z
 
+      # The inference the picker snapped to (see #_snap_point) gives the free
+      # divider its offset : the point slides along the normal onto it - so
+      # it stays inside the picked face. Ignored when it lies outside the
+      # cavity's own extent, a snap on some other carcass in the background.
+      if @number == 0 && point == @picked_point && @picked_inference_point.is_a?(Geom::Point3d)
+        inference_d = normal_3f[0] * @picked_inference_point.x + normal_3f[1] * @picked_inference_point.y + normal_3f[2] * @picked_inference_point.z
+        if inference_d >= n0 && inference_d <= n1
+          point = point.offset(Geom::Vector3d.new(normal_3f), inference_d - d) unless inference_d == d
+          d = inference_d
+        end
+      end
+
       # [ d0, d1, reference offset, distance to measure ] per slab, all
       # expressed as offsets along the normal.
       if @number > 0
@@ -4345,15 +4485,22 @@ module Ladb::OpenCutList
         return normal.to_a
       end
 
-      candidates = _get_divider_normal_candidates(picked_face_manipulator)
-      return nil if candidates.length < 2
+      # The SHIFT lock keeps the direction it was taken with : the camera
+      # fallback would otherwise follow an orbit.
+      candidate = @place_lock ? @place_lock[:natural_normal] : _get_divider_natural_normal(picked_face_manipulator, fragment_def, view)
+      return nil if candidate.nil?
 
-      index = _get_divider_normal_candidate_index(candidates, fragment_def, view)
-
-      candidate = candidates[index]
       candidate = Geom::Vector3d.new(candidate).reverse! if _fetch_option_measure_reversed?
 
       candidate.to_a
+    end
+
+    # The natural pick of #_get_divider_normal_3f, before any locked axis or
+    # reversal. nil without two candidates.
+    def _get_divider_natural_normal(picked_face_manipulator, fragment_def, view)
+      candidates = _get_divider_normal_candidates(picked_face_manipulator)
+      return nil if candidates.length < 2
+      candidates[_get_divider_normal_candidate_index(candidates, fragment_def, view)]
     end
 
     # Area-weighted dominant normal ([ x, y, z ] unit Float array) of the

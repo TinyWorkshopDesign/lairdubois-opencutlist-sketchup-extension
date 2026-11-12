@@ -33,9 +33,39 @@ in 8.x, 7.x, 6.x, 5.x, 4.x, 3.x, 2.x, 1.x and 0.x versions.
   * Rewrote Smart Paint Tool
   * Rewrote Smart Export Tool
   * Rewrote Smart Axes Tool
+  * Rewrote Self-Updater
 
 ## Lab
 
+### 2026-11-09
+  * Updated translations
+  * Updated PackingSolver dependency
+### 2026-11-08
+  * Added Smart Paint Part Dropup feature to paint parents
+### 2026-11-07
+  * Improved robustness of MaterialAttribute read
+  * Updated translations
+  * Updated PackingSolver dependency
+### 2026-11-06
+  * Added drag for multiple faces selection in Smart Paneling Tool
+  * Rewrote Self-Updater
+  * Updated PackingSolver dependency
+### 2026-11-05
+  * Improved Smart Paneling Tool
+  * Improved Smart Slice Tool by adding SHIFT key to reuse last distance
+  * Updated translations
+  * Updated PackingSolver dependency
+### 2026-11-04
+  * Improved Machinings Material Type by adding an attribute to separate geometries when exporting
+  * Updated translations
+  * Updated PackingSolver dependency
+### 2026-10-29
+  * Unhide Smart Slice Tool
+  * Improved translations
+  * Updated PackingSolver dependency
+### 2026-10-29
+  * Fixed Smart Build Divider snap
+  * Improved translations
 ### 2026-10-28
  * Added Smart Slice Tool **(DEV team only)**
  * Improved translations

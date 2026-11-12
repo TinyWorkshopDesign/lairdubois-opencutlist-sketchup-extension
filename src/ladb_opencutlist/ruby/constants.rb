@@ -2,10 +2,10 @@ module Ladb::OpenCutList
 
     EXTENSION_NAME = 'OpenCutList'.freeze
     EXTENSION_VERSION = '8.0.0-lab'.freeze
-    EXTENSION_BUILD = '202610281108'.freeze
+    EXTENSION_BUILD = '202611091851'.freeze
 
     DEFAULT_LANGUAGE = 'en'
-    ENABLED_LANGUAGES = %w[ar cs de en es fr hu it nl pl pt ro ru sr uk vi zh]
+    ENABLED_LANGUAGES = %w[bg cs de en es fr hu it nl pl pt ro ru uk vi zh]
 
     FILE_FORMAT_SKP = 'skp'.freeze
     FILE_FORMAT_STL = 'stl'.freeze

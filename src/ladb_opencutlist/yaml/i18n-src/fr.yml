@@ -99,7 +99,7 @@ default:
   fill_color: Couleur de remplissage
   length: Longueur
   width: Largeur
-  thickness: Epaisseur
+  thickness: Épaisseur
   height: Hauteur
   deprecated: Obsolète
 core:
@@ -115,7 +115,7 @@ core:
       edit_parent_part_instance: Modifier le groupe/composant contenant l'instance
       hide_part_instance: Masquer l'instance
       unhide_part_instance: Révéler l'instance
-      edit_part_instance_properties: Editer les propriétés de l'instance
+      edit_part_instance_properties: Éditer les propriétés de l'instance
       smart_draw: $t(core.toolbar.command.smart_draw)
       smart_build: $t(core.toolbar.command.smart_build)
       smart_handle: $t(core.toolbar.command.smart_handle)
@@ -162,8 +162,6 @@ core:
   warning:
     dev: |
       Vous utilisez une version **en cours de développement** d'*OpenCutList*.
-      Cette version est disponible uniquement pour être testée.
-      Il n'est pas conseillé de l'utiliser en production.
 
       Pour signaler un bug : <a href="mailto:opencutlist@lairdubois.fr?subject=Bug%20Report%20OpenCutList%20{{ version }}%20(build: {{ build }})" target="_blank">opencutlist@lairdubois.fr</a>.
     not_available_in_context: Non disponible dans ce contexte
@@ -295,7 +293,7 @@ core:
       view_back: Arrière
       view_left: Gauche
       view_right: Droite
-      zoom: Echelle {{ zoom }}
+      zoom: Échelle {{ zoom }}
       explode_factor: Amplitude de l'éclaté
       toggle_box_helper: Afficher ou masquer la boîte capable
       toggle_box_dimensions_helper: Afficher ou masquer les dimensions capables
@@ -489,6 +487,8 @@ core:
     primitive_end_from: Bout « De »
     primitive_head_diameter_angle: Ø | angle
     primitive_head_diameter_depth: Ø | profondeur
+    primitive_material: Matière
+    primitive_material_default: Matière d'usinage de l'outil
     primitive_variables: Variables
     primitive_unresolved: "Pas de solide sur le banc : vérifier ses dimensions."
     chip_bundled: Bibliothèque OCL
@@ -791,7 +791,7 @@ tab:
         - le même Plan
         - la même Orientation
         - la même Matière avec fil
-        - la même Epaisseur
+        - la même Épaisseur
       follow_grain_direction_0: $t(default.no)
       follow_grain_direction_1: Détection de Continuité de fil activée
       axes: Axes
@@ -1565,7 +1565,7 @@ tab:
         cutting_dimensions_increase_2d: Dimensions majorées par les surcotes configurées sur la matière '{{ material_name }}' en longueur (**{{ length_increase }}**) et en largeur (**{{ width_increase }}**).
         cutting_dimensions_edge_decrement: Dimensions réduites de l'épaisseur des chants. <i class='ladb-opencutlist-icon-edge-decremented'></i>
     labels:
-      title: Etiquettes
+      title: Étiquettes
       options_layout: Composition
       options_settings: Configuration
       options_part_order_strategy: Tri
@@ -1596,7 +1596,7 @@ tab:
       option_spacing: Espacements
       option_spacing_h: Horizontal
       option_spacing_v: Vertical
-      option_grid: Etiquettes par page
+      option_grid: Étiquettes par page
       option_col_count: Colonnes
       option_row_count: Lignes
       option_cutting_marks: Repères
@@ -1689,6 +1689,7 @@ tab:
       option_pins_length_1: Courte
       option_pins_length_2: Moyenne
       option_pins_length_3: Longue
+      option_pins_length_4: $t(default.automatic)
       option_pins_length_help: Permet de choisir la longueur de la flèche des épingles.
       option_pins_direction: Direction
       option_pins_direction_0: Le long de l'axe Rouge
@@ -1713,7 +1714,7 @@ tab:
       option_camera: Camera
       option_camera_view: Vue
       option_camera_view_custom: Personnalisée
-      option_camera_zoom: Echelle
+      option_camera_zoom: Échelle
       option_camera_zoom_auto: Automatique
       option_camera_zoom_custom: Personnalisée
       option_camera_target: Position
@@ -1943,6 +1944,7 @@ tab:
       formats: Formats
       cut_options: Options de débit
       estimate_options: Options d'estimation
+      export_options: Options d'export
       attributes: Attributs
       thickness: Épaisseur
       thickness_help: |
@@ -2004,6 +2006,29 @@ tab:
       raw_estimated_1: Volume de matière première nécessaire
       multiplier_coefficient: Coefficient multiplicateur
       multiplier_coefficient_help: Permet d'indiquer le coefficient multiplicateur appliqué sur le volume brut mesuré.
+      machining_separated: Géométries d'usinages
+      machining_separated_help: |
+        Permet de définir comment les géométries d'usinages de cette matière sont exportés en 2D (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_separated_0)**
+        Les géométries d'usinages sont soustraites de la forme de la pièce et fusionnés avec ses calques de profondeur comme si l'opération solide était réalisée dans la géométrie de la pièce.
+        *Les géométries d'usinages débordantes sont tronquées.*
+
+        **$t(tab.materials.edit_material.machining_separated_1)**
+        La pièce garde sa forme initiale. Chaque géométrie d'usinage est exporté tel quel, sans fusion avec les autres, sur un calque `MACHININGS` par profondeur, nommé d'après la matière.
+      machining_separated_0: Creusés dans la pièce
+      machining_separated_1: Séparés sur leurs propres calques
+      machining_material_colored: Couleurs à l'export
+      machining_material_colored_help: |
+        Permet de définir les couleurs des usinages séparés dans les exports 2D (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_material_colored_1)**
+        Le contour des usinages prend la couleur de cette matière, sans remplissage.
+
+        **$t(tab.materials.edit_material.machining_material_colored_0)**
+        Les usinages prennent les couleurs de ce qu'ils découpent dans la pièce : celles des percements s'ils sont traversants, celles des cavités sinon. Utile pour les machines qui déduisent le type de coupe des couleurs.
+      machining_material_colored_0: Automatiques
+      machining_material_colored_1: Couleur de la matière
       std_attributes_dim_placeholder: Choisissez une taille
       std_volumic_masses: Masse volumique
       std_volumic_masses_help: Permet de définir la masse volumique toutes tailles ainsi que pour chaque taille standard de la matière.
@@ -2075,9 +2100,9 @@ tab:
       unhide_node: Révéler
       locked_node: Verrouillée
       is_active_node: Instance active dans le modèle
-      set_active_node: Editer dans le modèle
-      edit_node_properties: Editer les propriétés
-      select_active_nodes: Sélectionner / Déselectionner toutes les instances actives
+      set_active_node: Éditer dans le modèle
+      edit_node_properties: Éditer les propriétés
+      select_active_nodes: Sélectionner / Désélectionner toutes les instances actives
       select_node: Sélectionner
       unselect_node: Désélectionner
       open_node_url: Ouvrir l'URL de la pièce
@@ -2106,7 +2131,7 @@ tab:
       cuts_opening: Découper l'ouverture
       always_face_camera: Toujours faire face à la caméra
       shadows_face_sun: Ombre face au soleil
-      no_scale_mask: Echelle et Etirement
+      no_scale_mask: Échelle et Étirement
       no_scale_mask_0: Déformable le long de l'axe rouge (X)
       no_scale_mask_1: Déformable le long de l'axe vert (Y)
       no_scale_mask_2: Déformable le long de l'axe bleu (Z)
@@ -2114,7 +2139,7 @@ tab:
       no_scale_mask_4: Déformable sur le plan vert/bleu (Y+Z)
       no_scale_mask_5: Déformable sur le plan rouge/vert (X+Y)
       no_scale_mask_6: Déformable à partir des coins (XYZ)
-      explode: Eclater
+      explode: Éclater
       explode_message: Confirmez-vous l'éclatement de **{{ name }}** ?
       erase: Effacer
       erase_message: Confirmez-vous l'effacement de **{{ name }}** ?
@@ -2155,85 +2180,6 @@ tab:
         Votre modèle ne dispose pour le moment d'aucune instance à afficher ici.
         Une instance est un **groupe** ou un **composant** placé dans la scène.
     obsolete_base: Pour rester synchronisé, vous devez rafraîchir la structure.
-  # @no-translate
-  importer:
-    label: Importer
-    title: Importer des pièces
-    help: |
-      Cette page vous permet d'importer une série de pièces capables (de forme parallélépipédique) dans votre modèle depuis un fichier [CSV](https://fr.wikipedia.org/wiki/Comma-separated_values).
-      Vous pourrez ainsi utiliser la puissance de la fiche de débit d'*OpenCutList* en générant vos pièces avec un autre logiciel que *SketchUp*.
-      Cliquez sur le bouton **Ouvrir un fichier CSV** pour démarrer.
-    open_csv: Ouvrir un fichier CSV
-    import_to_model: Importer dans le modèle
-    load:
-      title: Chargement d'un fichier CSV
-      info_0: |
-        Choisissez les options nécessaires à la bonne lecture du fichier :
-        **{{ filename }}**.
-      info_1: |
-        *L'unité configurée dans le modèle est : **{{ unit }}**.
-        Cette unité sera utilisée pour les dimensions dont l'unité n'est pas précisée*.
-      options: Options de chargement
-      option_col_sep: Séparateur
-      option_col_sep_tab: Tabulation
-      option_col_sep_comma: Virgule
-      option_col_sep_semicolon: Point virgule
-      option_first_line_headers: Première ligne
-      option_first_line_headers_0: Données
-      option_first_line_headers_1: Titres de colonne
-    import:
-      title: Importation des pièces dans le modèle
-      info_0: |
-        Vous êtes sur le point d'importer **{{ count }} pièce** dans le modèle.
-        Cette pièce va être placée sur la scène principale, à l'origine.
-      info_0_plural: |
-        Vous êtes sur le point d'importer **{{ count }} pièces** dans le modèle.
-        Ces pièces vont être empilées sur la scène principale depuis l'origine.
-      info_1: Cliquez sur **Importer** pour confirmer l'action.
-      options: |
-        Le modèle contient déjà des *pièces*, des *définitions* ou des *matières*.
-        Choisissez les options d'importation qui correspondent à votre besoin.
-      option_remove_all_?: Que faire ?
-      option_remove_all_false: Ajouter les pièces à l'existant
-      option_remove_all_true: Effacer tout !
-      option_keep_definitions_settings: Conserver les paramètres sur les définitions
-      option_keep_materials_settings: Conserver les paramètres sur les matières
-    column:
-      unused: Non utilisé
-      mandatory: Champs obligatoires
-      optional: Champs facultatifs
-      name: Désignation
-      count: Quantité
-      bbox_length: Longueur capable
-      bbox_width: Largeur capable
-      bbox_thickness: Épaisseur capable
-      material: Matière
-      tags: Badges
-    tooltip:
-      errors: Cette pièce ne sera pas importée car elle contient les erreurs suivantes
-      warnings: Cette pièce sera importée mais elle contient les avertissements suivants
-    error:
-      no_model: Aucun modèle n'est ouvert. Il est impossible d'importer des pièces dans le néant ;)
-      file_not_found: "Fichier introuvable : **{{ filename }}**"
-      bad_extension: Le fichier *{{ filename }}* n'a pas l'extension **.CSV** ou **.TSV**.
-      failed_to_load_csv_file: |
-        Impossible de charger le fichier CSV : **{{ error }}**
-        *Vérifiez que vous avez choisi le bon séparateur de données.*
-      empty_file: Le fichier semble vide ou ne peut pas être correctement lu.
-      no_importable_part: Aucune pièce ne peut être importée. Attribuez les champs obligatoires sur les colonnes correspondantes.
-      invalid_name: Pas de désignation valide
-      invalid_length: Pas de longueur valide
-      invalid_width: Pas de largeur valide
-      invalid_thickness: Pas d'épaisseur valide
-      failed_to_import: L'importation a échoué.
-    warning:
-      invalid_count: Pas de quantité valide
-      invalid_material: Pas de matière valide
-    success:
-      imported_title: Importation terminée
-      imported_body: "{{ count }} pièce importée avec succès !"
-      imported_body_plural: "{{ count }} pièces importées avec succès !"
-    obsolete_base: Pour rester synchronisé, vous devez recharger le fichier CSV.
   importers:
     default:
       open_file: Ouvrir un fichier {{ extension }}
@@ -2383,7 +2329,7 @@ tab:
         depth: Profondeur
       article:
         list: Liste des articles
-        total_quantity: Qte.
+        total_quantity: Qté
         article_number: Ref.
         description: Description
         material: Matière
@@ -2582,7 +2528,7 @@ tool:
     middle_point: Point du milieu
     third_point: Point au tiers
     vcb_length: Longueur
-    vcb_thickness: Epaisseur
+    vcb_thickness: Épaisseur
     vcb_size: Cotations
     vcb_radius: Rayon
     vcb_diameter: Diamètre
@@ -2716,7 +2662,7 @@ tool:
     action_3_state_0_merge_status: Glissez jusqu'aux cavités voisines pour un fond commun
     action_option_group_groove: Rainure
     action_2_option_group_offset: Jeu
-    action_option_group_thickness: Epaisseur
+    action_option_group_thickness: Épaisseur
     action_option_group_overlay: Pose
     action_option_group_axes: Axes
     action_option_group_measure_type: Mesure
@@ -2735,7 +2681,7 @@ tool:
     action_option_groove_groove_setback_status: Définit de combien le fond recule vers l'intérieur du caisson, et donc où la rainure est usinée
     action_option_groove_groove_through: Rainure filante
     action_option_groove_groove_through_status: Prolonger la rainure jusqu'au bout des pièces qui couvrent leur voisine, lorsqu'elle y débouche sans être visible
-    action_option_thickness_thickness: Epaisseur
+    action_option_thickness_thickness: Épaisseur
     action_option_thickness_thickness_status: Définit l'épaisseur des panneaux
     action_option_overlay_inset_status: "Façade encastrée : posée dans l'ouverture, au nu de la face avant"
     action_3_option_overlay_inset_status: "Fond en rainure : engagé dans une rainure usinée dans les pièces qui bordent l'ouverture"
@@ -2853,8 +2799,8 @@ tool:
       incoherent_door: Les charnières de cette porte ne tournent pas autour d'un même axe
   smart_reshape:
     title: Remodeler
-    action_0: Etirer
-    action_0_status: Etirer une pièce
+    action_0: Étirer
+    action_0_status: Étirer une pièce
     action_0_state_1_status: Cliquez sur une poignée pour étirer
     action_0_state_1a_status: Cliquez sur un plan de coupe pour le déplacer
     action_0_state_1b_status: Ajouter un plan de coupe
@@ -2883,42 +2829,28 @@ tool:
     action_4_status: Créer une pièce correspondant à l'intersection de plusieurs pièces
     action_4_state_0_status: Sélectionnez la pièce A
     action_4_state_1_status: Sélectionnez la pièce B
-    # @no-translate
     action_5: Trancher
-    # @no-translate
     action_5_status: Trancher une ou plusieurs pièces par un plan
-    # @no-translate
     action_5_state_1_status: Cliquez sur la face de référence, n'importe où dans le modèle
-    # @no-translate
     action_5_state_1_arrows_status: Trancher perpendiculairement à un axe depuis l'extrémité de la sélection
-    # @no-translate
     action_5_state_1b_status: Cliquez pour placer le point {{ index }} sur 3 du plan de référence, n'importe où dans le modèle
-    # @no-translate
     action_5_state_1b_arrows_status: Verrouiller sur un axe
-    # @no-translate
     action_5_state_1c_status: Cliquez pour valider le plan de référence ou Échap pour retirer le dernier point
-    # @no-translate
     action_5_state_2_status: Cliquez pour trancher les pièces ou entrez une distance
-    # @no-translate
     action_5_state_2a_status: Cliquez pour placer le plan de coupe ou entrez une distance
-    # @no-translate
     action_5_state_2_arrows_status: Changer d'axe
-    # @no-translate
     action_5_state_3_status: Cliquez du côté de la partie à conserver
-    # @no-translate
     action_5_state_4_status: Cliquez pour trancher les pièces en {{ number }} morceaux ou entrez des espacements
-    action_option_group_thickness: Epaisseur
+    action_option_group_thickness: Épaisseur
     action_option_group_stretch_measure_type: Mesure
     action_option_group_axes: Axes
     action_option_group_paneling_joint_type: Assemblage
     action_option_group_paneling_direction: Direction
     action_option_group_csg_operation: Operation
-    # @no-translate
     action_option_group_slice_mode: Mode
-    # @no-translate
     action_option_group_slice_reference: Référence
     action_option_group_options: Options
-    action_option_thickness_thickness: Epaisseur
+    action_option_thickness_thickness: Épaisseur
     action_option_thickness_thickness_status: Définit l'épaisseur des panneaux
     action_option_stretch_measure_type_outside_status: Mesurer à l'extérieur
     action_option_stretch_measure_type_offset_status: Mesurer la différence
@@ -2929,13 +2861,9 @@ tool:
     action_option_paneling_joint_type_miter_status: Coupe d'onglet
     action_option_paneling_direction_inward_status: Intérieure
     action_option_paneling_direction_outward_status: Extérieure
-    # @no-translate
     action_option_slice_mode_slice_status: Trancher les pièces et conserver toutes les parties
-    # @no-translate
     action_option_slice_mode_cut_status: Couper les pièces et ne conserver qu'une partie
-    # @no-translate
     action_option_slice_reference_face_status: Plan de référence pris sur une face
-    # @no-translate
     action_option_slice_reference_points_status: Plan de référence passant par 3 points
     action_option_options_centered_status: Centrer sur les éléments étirés
     action_option_options_make_unique_status: Rendre unique les éléments remodelés
@@ -2945,9 +2873,9 @@ tool:
     action_option_options_keep_b_status: Conserver les instances B après l'opération
     action_option_options_remove_unused_definitions_status: Effacer les définitions de composant qui ne sont plus utilisées après l'opération
     action_option_options_reuse_definition: Réutiliser les pièces
-    action_option_options_reuse_definition_status: Partager la même définition de composant entre les panneaux de forme identique
+    action_option_options_reuse_definition_status: Partager la même définition de composant entre les pièces de forme identique
     action_option_options_reuse_definition_mirrored: Pose en miroir
-    action_option_options_reuse_definition_mirrored_status: Pose en miroir pour les panneaux de forme identique en vis-à-vis
+    action_option_options_reuse_definition_mirrored_status: Pose en miroir pour les pièces de forme identique en vis-à-vis
     notify:
       validate_a: Validez pour passer à la sélection de B
       validate_b: Validez pour appliquer l'opération
@@ -3026,7 +2954,7 @@ tool:
     action_option_group_direction: Direction
     action_option_direction_0: Lo
     action_option_direction_1: La
-    action_option_direction_2: Ep
+    action_option_direction_2: Ép
     action_option_direction_0_status: Retourner la pièce dans sa longueur
     action_option_direction_1_status: Retourner la pièce dans sa largeur
     action_option_direction_2_status: Retourner la pièce dans son épaisseur

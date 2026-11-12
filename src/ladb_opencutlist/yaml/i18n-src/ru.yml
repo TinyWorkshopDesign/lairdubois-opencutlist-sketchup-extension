@@ -54,7 +54,7 @@ default:
   empty_filename: Безымянный.skp
   help: Помощь
   # mild expression of frustration or disappointment, polite and family-friendly
-  error: Исправить!
+  error: Чёрт побери!
   warning: Внимание!
   tip: Совет
   good: Хороший
@@ -131,7 +131,7 @@ core:
     command:
       dialog: OpenCutList
       smart_draw: Моделирование деталей
-      smart_build: Создать детали
+      smart_build: Создание мебели
       smart_handle: Действия с деталями
       smart_reshape: Модификация деталей
       smart_paint: Раскраска деталей
@@ -162,8 +162,6 @@ core:
   warning:
     dev: |
       Вы используете **находящуюся в разработке** версию *OpenCutList*.
-      Эта версия доступна только для тестирования.
-      Использовать в производстве НЕ РЕКОМЕНДУЕТСЯ.
 
       Найдена ошибка - сообщите мне:<a href="mailto:opencutlist@lairdubois.fr?subject=Bug%20Report%20OpenCutList%20{{ version }}%20(build: {{ build }})" target="_blank">opencutlist@lairdubois.fr</a>.
     not_available_in_context: Недоступно в данном контексте
@@ -285,7 +283,7 @@ core:
       browse: Обзор
       browse_library: Найти и скопировать в библиотеку
     textinput_size:
-      quantity: Кол-во
+      quantity: К-во
     three_viewer:
       view: Вид {{ view }}
       view_isometric: Изометрия
@@ -687,7 +685,7 @@ tab:
       volume: Объем
       number: N°
       name: Определение
-      count: Кол-во
+      count: К-во
       cutting: Раскрой
       bbox: Габаритный
       final: Фактически
@@ -798,7 +796,7 @@ tab:
       total_unused: Неиспользуемый
       total_mass: Σ Вес
       total_cost: Σ Цена
-      total_count: Кол-во
+      total_count: К-во
       total_instance_count: Σ Единиц
       total_volume: Σ Объемов
       total_area: Σ Площадей
@@ -1252,7 +1250,7 @@ tab:
         total_cut_count: Σ Число резов
         total_cut_length: Σ Длина пропилов
         efficiency: Эффективность
-        count: Кол-во
+        count: К-во
         length: Длина
         width: Ширина
         total_length: Σ Длин
@@ -1468,6 +1466,7 @@ tab:
       option_pins_length_1: Малая
       option_pins_length_2: Средняя
       option_pins_length_3: Большая
+      option_pins_length_4: $t(default.automatic)
       option_pins_length_help: Позволяет задать длину стрелки булавки.
       option_pins_direction: Направление
       option_pins_direction_0: По красной оси
@@ -1722,6 +1721,7 @@ tab:
       formats: Форматы
       cut_options: Параметры раскроя
       estimate_options: Параметры расчета
+      export_options: Параметры экспорта
       attributes: Атрибуты
       thickness: Толщина
       thickness_help: |
@@ -1783,6 +1783,29 @@ tab:
       raw_estimated_1: Объем использованного материала
       multiplier_coefficient: Коэффициент умножения
       multiplier_coefficient_help: Позволяет указать коэффициент умножения, применяемый к измеренному объему брутто.
+      machining_separated: Контуры обработки
+      machining_separated_help: |
+        Позволяет настроить экспорт геометрии обработки для этого материала в 2D (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_separated_0)**
+        Контуры обработки вырезаются из исходной формы детали и объединяются со слоями соответствующей глубины.
+        *Выступающие за пределы детали контуры обработки обрезаются.*
+
+        **$t(tab.materials.edit_material.machining_separated_1)**
+        Деталь сохраняет свою исходную форму. Каждый контур обработки экспортируется «как есть» без объединения с остальными, на отдельный слой `MACHININGS` (для каждой глубины), названный по имени материала.
+      machining_separated_0: Пазы и углубления в детали
+      machining_separated_1: Раздельно на свои слои
+      machining_material_colored: Цвета экспорта
+      machining_material_colored_help: |
+        Позволяет настроить цвета для контуров обработки, вынесенных на отдельные слои при 2D-экспорте (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_material_colored_1)**
+        Контур обработки окрашивается в цвет этого материала, без заливки.
+
+        **$t(tab.materials.edit_material.machining_material_colored_0)**
+        Контуры обработки окрашиваются в зависимости от того, какой элемент они вырезают в детали: в цвета отверстий, если они сквозные, либо в цвета ниш во всех остальных случаях. Это необходимо для станков, которые определяют тип обработки по цвету линий.
+      machining_material_colored_0: Автоматически
+      machining_material_colored_1: Цвет материала
       std_attributes_dim_placeholder: Введите размер
       std_volumic_masses: Плотность
       std_volumic_masses_help: Позволяет определить плотность для всех размеров, а также для каждого стандартного размера материала.
@@ -1934,85 +1957,6 @@ tab:
         В настоящее время у модели нет экземпляров для отображения.
         Экземпляр - это **группа** или **компонент**, помещенная в сцену.
     obsolete_base: Чтобы синхронизировать изменения, вам необходимо заново создать структуру.
-  # @no-translate
-  importer:
-    label: Импорт
-    title: Импорт деталей
-    help: |
-      Эта страница позволяет импортировать в вашу модель набор заготовок (в форме параллелепипеда) из файла [CSV](https://ru.wikipedia.org/wiki/CSV).
-      Таким образом, вы сможете использовать возможности карты раскроя *OpenCutList*, создавая детали в программе, отличной от *SketchUp*.
-      Нажмите кнопку **Открыть CSV-файл**, чтобы начать.
-    open_csv: Открыть CSV файл
-    import_to_model: Импорт в модель
-    load:
-      title: Загрузить CSV файл
-      info_0: |
-        Выберите опции, необходимые для хорошего чтения файла:
-        **{{ filename }}**.
-      info_1: |
-        *Единицей измерения, заданной в шаблоне, является: **{{ unit }}**.
-        Данная единица будет применена для размеров, в которых единица измерения не указана*.
-      options: Опции загрузки
-      option_col_sep: Разделитель
-      option_col_sep_tab: Табулятор
-      option_col_sep_comma: Запятая
-      option_col_sep_semicolon: Точка с запятой
-      option_first_line_headers: Заголовок строки
-      option_first_line_headers_0: Дата
-      option_first_line_headers_1: Столбец заголовков
-    import:
-      title: Импорт деталей в модель
-      info_0: |
-        Вы собираетесь импортировать **{{ count }} деталь** в модель.
-        Эта часть будет помещена в начало основной сцены.
-      info_0_plural: |
-        Вы собираетесь импортировать **{{ count }} деталей** в модель.
-        Эти части будут загружены в пакет, начиная с начала основной сцены.
-      info_1: Нажмите на **Импорт**, чтобы подтвердить действие.
-      options: |
-        Модель уже содержит *детали*, *определения* или *материалы*.
-        Выберите необходимые опции импорта.
-      option_remove_all_?: Что дальше?
-      option_remove_all_false: Добавить детали к существующим
-      option_remove_all_true: Удалить существующий!
-      option_keep_definitions_settings: Сохранить настройки определения
-      option_keep_materials_settings: Сохранять настройки материалов
-    column:
-      unused: Неиспользуемый
-      mandatory: Обязательные поля
-      optional: Дополнительные поля
-      name: Определение
-      count: Количество
-      bbox_length: Пильная длина
-      bbox_width: Ширина
-      bbox_thickness: Толщина
-      material: Материал
-      tags: Маркеры
-    tooltip:
-      errors: Эта часть не будет импортирована, так как она привела к следующим ошибкам
-      warnings: Эта часть будет импортирована, но она выдает следующие предупреждения
-    error:
-      no_model: Ни один проект модели не открыт. Импорт частей из пустоты невозможен ;)
-      file_not_found: "Файл не найден : **{{ filename }}**"
-      bad_extension: Файл *{{ filename }}* не имеет расширения **.CSV** или **.TSV**.
-      failed_to_load_csv_file: |
-        Невозможно загрузить CSV файл : **{{ error }}**
-        *Убедитесь, что вы выбрали правильный разделитель полей.*
-      empty_file: Файл возможно пустой или имеет не читаемый формат.
-      no_importable_part: Ни одна из деталей не может быть импортирована. Назначьте обязательные поля соответствующим столбцам.
-      invalid_name: Неверное описание
-      invalid_length: Недопустимая длина
-      invalid_width: Недопустимая ширина
-      invalid_thickness: Недопустимая толщина
-      failed_to_import: Процесс импорта не удался.
-    warning:
-      invalid_count: Неверный подсчёт
-      invalid_material: Недопустимый материал
-    success:
-      imported_title: Импорт завершен
-      imported_body: "{{ count }} деталь была успешно импортирована!"
-      imported_body_plural: "{{ count }} деталей успешно импортированы!"
-    obsolete_base: Чтобы сохранить синхронизацию, вы должны перезагрузить CSV файл.
   importers:
     default:
       open_file: Открыть файл {{ extension }}
@@ -2048,7 +1992,7 @@ tab:
         option_col_sep_semicolon: Точка с запятой
         option_first_line_headers: Строка заголовков
         option_first_line_headers_0: Данные
-        option_first_line_headers_1: Столбец заголовков
+        option_first_line_headers_1: Заголовки столбцов
       import:
         title: Импорт деталей в модель
         info_0: |
@@ -2429,7 +2373,7 @@ tool:
     action_option_offset_shape_offset_status: Задать смещение линии контура проектируемой фигуры
     action_option_segments_segment_count: Количество сегментов
     action_option_segments_segment_count_status: Задать количество сегментов в проектируемой окружности
-    action_option_options_construction: Конструкционные элементы
+    action_option_options_construction: Вид конструкции
     action_option_options_construction_status: Каркасный вид детали
     action_option_options_rectangle_centered: Прямоугольник из центра
     action_option_options_rectangle_centered_status: Первым кликом задайте центр прямоугольника
@@ -2445,8 +2389,8 @@ tool:
     action_option_options_pull_centered_status: Симметричное вытягивание от заданного кликом центра
     action_option_options_pull_locked_status: Блокировка подъема по оси
     action_option_options_draw_in: Рисовать в
-    action_option_options_draw_in_0: Рисование в активном элементе
-    action_option_options_draw_in_1: Рисовать от первой точки родительского элемента
+    action_option_options_draw_in_0: в активном элементе
+    action_option_options_draw_in_1: от первой точки родительского элемента
     action_option_options_draw_in_status: Нарисовать в родительском элементе, на который указывает первая точка
     action_option_options_pick_material: Пипетка
     action_option_options_pick_material_status: Применить материал детали, на которую указывает первая точка, к создаваемой детали
@@ -2459,13 +2403,13 @@ tool:
       part_created_plural: "создано {{ count }} новых деталей: {{ name }}"
   smart_build:
     title: Мебельщик
-    action_0: Создать фасад
-    action_0_status: Разместить модуль, импортированный из файла SKP, растянутый по размерам нарисованной габаритной рамки
+    action_0: Создать модуль
+    action_0_status: Разместить в модели модуль, импортированный из файла SKP, с возможностью задать габаритные размеры
     action_0_state_0_status: Выберите компонент из библиотеки
     action_0_state_1_status: Кликните для указания расположения элемента
     action_0_state_2_status: Щелкните, чтобы задать ширину модуля (ось X)
     action_0_state_2_lock_status: Зафиксировать ширину исходного файла
-    action_0_state_2_arrows_status: зафиксировать по оси
+    action_0_state_2_arrows_status: Зафиксировать по оси
     action_0_state_3_status: Щелкните, чтобы задать глубину модуля (ось Y)
     action_0_state_3_lock_status: Зафиксировать глубину как в исходном файле
     action_0_state_3_arrows_status: зафиксировать нормаль плоскости XY по оси
@@ -2485,12 +2429,12 @@ tool:
     action_1_status: Создать перегородку в нише, образованной группой смежных деталей
     action_1_state_0_status: Кликните внутри ниши, чтобы создать там перегородку
     action_1_state_1_status: Щелкните по стенке, чтобы создать перегородки
-    action_2: Создать заднюю стенку 1
-    action_2_status: Создать заднюю стенку спереди внутри замкнутого контура из деталей, образующих корпус
+    action_2: Создать фасад
+    action_2_status: Создать фасад, закрывающий нишу в готовом корпусе
     action_2_state_0_status: Кликните внутри ниши, чтобы создать там фасад
-    action_2_state_0_merge_status: Перетащите указатель на соседние ниши для создания общей задней стенки
-    action_3: Создать заднюю стенку 2
-    action_3_status: Создать заднюю стенку сзади внутри замкнутого контура из деталей, образующих корпус
+    action_2_state_0_merge_status: Перетащите указатель на соседние ниши для создания общего фасада
+    action_3: Создать заднюю стенку
+    action_3_status: Создать заднюю стенку в замкнутом контуре готового корпуса
     action_3_state_0_status: Щелкните внутри полости, чтобы создать заднюю стенку на стороне проема, противоположной виду
     action_3_state_0_merge_status: Перетащите указатель на соседние полости, чтобы создать общую заднюю стенку
     action_option_group_groove: Паз
@@ -2634,14 +2578,14 @@ tool:
     title: Модификатор
     action_0: Растянуть
     action_0_status: Растянуть деталь
-    action_0_state_1_status: Кликните на ручку, чтобы растянуть
-    action_0_state_1a_status: Кликните на схему распила, чтобы переместить ее
-    action_0_state_1b_status: Добавить схему распила
-    action_0_state_1c_status: Удалить схему распила
-    action_0_state_1d_status: Кликните, чтобы переместить геометрию, расположенную между двумя плоскостями сечения
-    action_0_state_10_status: Перетащите схему распила, чтобы переместить ее
-    action_0_state_11_status: Нажмите, чтобы добавить схему распила
-    action_0_state_12_status: Нажмите на схему распила, чтобы удалить ее
+    action_0_state_1_status: Кликните на маркер, чтобы растянуть
+    action_0_state_1a_status: Кликните на вспомогательную плоскость, чтобы переместить ее
+    action_0_state_1b_status: Добавить вспомогательную плоскость
+    action_0_state_1c_status: Удалить вспомогательную плоскость
+    action_0_state_1d_status: Кликните, чтобы переместить геометрию, расположенную между двумя вспомогательными плоскостями
+    action_0_state_10_status: Для перемещения вспомогательной плоскости, необходимо кликнуть по ней
+    action_0_state_11_status: Кликните, чтобы добавить вспомогательную плоскость
+    action_0_state_12_status: Кликните на вспомогательную плоскость, чтобы удалить ее
     action_0_state_2_status: Кликните, чтобы подтвердить растяжение, или введите расстояние
     action_1: Окантовать
     action_1_status: Создание серии деталей на основе замкнутого твердого тела или чертежа из направляющих линий
@@ -2649,7 +2593,7 @@ tool:
     action_1_state_1_status: Выберите грани для окантовки
     action_1_rollover_face_status: Грань под курсором
     action_1_select_similar_status: Выделить все одинаковые грани
-    action_1_select_all_edges_status: Выбрать все смежные ребра
+    action_1_select_all_edges_status: Выбрать все смежные грани
     action_2: Объединить
     action_2_status: Объединить несколько деталей в одну
     action_2_state_0_status: Выберите деталь А
@@ -2662,12 +2606,26 @@ tool:
     action_4_status: Создать деталь на пересечении нескольких деталей
     action_4_state_0_status: Выберите деталь А
     action_4_state_1_status: Выберите деталь B
+    action_5: Нарезать
+    action_5_status: Нарезать одну или несколько деталей по плоскости
+    action_5_state_1_status: Кликните на базовую плоскость лицевой стороны в любом месте
+    action_5_state_1_arrows_status: Нарезать перпендикулярно оси от края выделени
+    action_5_state_1b_status: Кликните, чтобы указать точку {{ index }} из 3 на базовой плоскости в любом месте
+    action_5_state_1b_arrows_status: Зафиксировать по оси
+    action_5_state_1c_status: Кликните, чтобы принять базовую плоскость, или нажмите Esc, чтобы отменить последнюю точку
+    action_5_state_2_status: Кликните, чтобы нарезать детали, или введите расстояние
+    action_5_state_2a_status: Кликните, чтобы установить плоскость реза, или введите расстояние
+    action_5_state_2_arrows_status: Сменить ось
+    action_5_state_3_status: Кликните со стороны детали, которую нужно сохранить
+    action_5_state_4_status: Кликните, чтобы нарезать детали на {{ number }} частей, или введите шаг интервала
     action_option_group_thickness: Толщина
     action_option_group_stretch_measure_type: Отсчет
     action_option_group_axes: Оси
     action_option_group_paneling_joint_type: Тип стыка
     action_option_group_paneling_direction: Направление
     action_option_group_csg_operation: Операция
+    action_option_group_slice_mode: Режим
+    action_option_group_slice_reference: Опора
     action_option_group_options: Опции
     action_option_thickness_thickness: Толщина
     action_option_thickness_thickness_status: Ввод толщины окантовки
@@ -2680,6 +2638,10 @@ tool:
     action_option_paneling_joint_type_miter_status: Заусовка
     action_option_paneling_direction_inward_status: Внутри
     action_option_paneling_direction_outward_status: Снаружи
+    action_option_slice_mode_slice_status: Нарезать детали и сохранить все части
+    action_option_slice_mode_cut_status: Обрезать детали и сохранить только одну часть
+    action_option_slice_reference_face_status: Базовая плоскость построена по грани лицевой стороны
+    action_option_slice_reference_points_status: Базовая плоскость по 3 точкам
     action_option_options_centered_status: Симметричная растяжка элемента относительно собственного центра
     action_option_options_make_unique_status: Сделать уникальными полученные детали
     action_option_options_keep_a: Оставить деталь А
@@ -2688,7 +2650,7 @@ tool:
     action_option_options_keep_b_status: Сохранять экземпляры B после операции
     action_option_options_remove_unused_definitions_status: После выполнения операции удалять детали, которые опционально не выбраны для сохранения
     action_option_options_reuse_definition: Использовать детали повторно
-    action_option_options_reuse_definition_status: Назначить общее определение компонента для одинаковых панелей
+    action_option_options_reuse_definition_status: Объединять идентичные детали в один компонент
     action_option_options_reuse_definition_mirrored: Зеркальное отображение
     action_option_options_reuse_definition_mirrored_status: Зеркальный раскрой для противоположных одинаковых панелей
     notify:

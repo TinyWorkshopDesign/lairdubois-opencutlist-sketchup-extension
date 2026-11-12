@@ -142,7 +142,7 @@ core:
     dir_override: |
       « {{ target }} » já existe. Deseja substituir ?
 
-      Uma pasta com o mesmo nome já está na pasta {{ parent }}. Se você substituí-lo, o conteúdo original será perdido.
+      Uma pasta com o mesmo nome já está na pasta {{ parent }}. Se você substituí-la, o conteúdo original será perdido.
   savepanel:
     export_to_file: Exportar para o arquivo {{ file_format }}
   dialog:
@@ -162,8 +162,6 @@ core:
   warning:
     dev: |
       Você está usando uma versão **em desenvolvimento** do *OpenCutList*.
-      Esta versão está disponível apenas para teste.
-      Não é recomendado usá-lo na produção.
 
       Para relatar um bug: <a href="mailto:opencutlist@lairdubois.fr?subject=Bug%20Report%20OpenCutList%20{{ version }}%20(build: {{ build }})" target="_blank">opencutlist@lairdubois.fr</a>.
     not_available_in_context: Não disponível neste contexto
@@ -372,22 +370,22 @@ tab:
         Acrescentar seção *{{ std_dimension }}*
         ao material '{{ material_name }}'
       rounded_std_width: |
-        A largura *{{ std_dimension }}* é arredondada pela precisão da unidade modelo.
+        A largura *{{ std_dimension }}* é arredondada pela precisão da unidade do modelo.
         Largura real: *{{ std_dimension_real }}*
         ---
         $t(tab.cutlist.tooltip.rounded_std_footer)
       rounded_std_thickness: |
-        A espessura *{{ std_dimension }}* é arredondada pela precisão da unidade modelo.
+        A espessura *{{ std_dimension }}* é arredondada pela precisão da unidade do modelo.
         Espessura real: *{{ std_dimension_real }}*
         ---
         $t(tab.cutlist.tooltip.rounded_std_footer)
       rounded_std_section: |
-        A seção transversal *{{ std_dimension }}* é arredondada pela precisão da unidade modelo.
+        A seção transversal *{{ std_dimension }}* é arredondada pela precisão da unidade do modelo.
         Seção cruzada real: *{{ std_dimension_real }}*
         ---
         $t(tab.cutlist.tooltip.rounded_std_footer)
       # "Model Info" refers to the SketchUp menu to change the units
-      rounded_std_footer: Defina a precisão na *Informações do modelo* ou verifique as dimensões das peças deste grupo.
+      rounded_std_footer: Defina a precisão em *Informações do modelo* ou verifique as dimensões das peças deste grupo.
       highlight_part: $t(tab.cutlist.highlight_part)
       highlight_parts: $t(tab.cutlist.highlight_parts)
       edit_part_properties: $t(tab.cutlist.edit_part_properties)
@@ -504,7 +502,7 @@ tab:
       material: Material
       cumulable: Pode somar
       cumulable_help: |
-        Se esta opção for selecionada, o **comprimento** ou o **largura** serão considerados **comprimento** ou **largura** multiplicados pela contagem ao ordenar a Lista de Peças.
+        Se esta opção for selecionada, o **comprimento** ou a **largura** serão considerados **comprimento** ou **largura** multiplicados pela contagem ao ordenar a Lista de Peças.
       cumulable_0: Não somam
       cumulable_1: Soma ao comprimento
       cumulable_2: Soma à largura
@@ -923,7 +921,7 @@ tab:
       option_scrap_bar_lengths_placeholder: comprimento x quantidade ; ...
       option_scrap_bar_lengths_help: |
         Indique aqui a lista das sobras da sua barra ou fita de borda consideradas prioritárias para o layout.
-        Formato esperado : **L**x**Q**. Onde **L** é o *comprimento* da sobra e **Q** a quantidade.
+        Formato esperado: **L**x**Q**. Onde **L** é o *comprimento* da sobra e **Q** a quantidade.
         A quantidade é opcional.
         *Se não for especificada nenhuma unidade, será utilizada a unidade modelo.*
       option_std_sheet_good: Chapa de tamanho padrão
@@ -1249,7 +1247,7 @@ tab:
         time: Tempo
         total_efficiency: Eficiência global
         total_fill_rate: Taxa de preenchimento
-        total_cut_count: Numero de cortes
+        total_cut_count: Número de cortes
         total_cut_length: Comprimento dos cortes
         efficiency: Eficiência
         count: Qtd.
@@ -1468,6 +1466,7 @@ tab:
       option_pins_length_1: Pequena
       option_pins_length_2: Média
       option_pins_length_3: Longa
+      option_pins_length_4: $t(default.automatic)
       option_pins_length_help: Permite escolher o comprimento da linhas-guia nas notas.
       option_pins_direction: Direção
       option_pins_direction_0: Na direção do eixo Vermelho
@@ -1722,6 +1721,7 @@ tab:
       formats: Formatos
       cut_options: Opções de corte
       estimate_options: Opções de Orçamento
+      export_options: Opções de exportação
       attributes: Atributos
       thickness: Espessura
       thickness_help: |
@@ -1783,6 +1783,29 @@ tab:
       raw_estimated_1: Volume de matéria-prima necessário
       multiplier_coefficient: Coeficiente multiplicador
       multiplier_coefficient_help: Permite indicar o coeficiente multiplicador aplicado sobre o volume bruto medido.
+      machining_separated: Geometrias de usinagens
+      machining_separated_help: |
+        Permite definir como as geometrias de usinagens deste material são exportadas em 2D (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_separated_0)**
+        As geometrias de usinagens são subtraídas da forma da peça e fundidas com as suas camadas de profundidade, como se a operação sólida fosse realizada na geometria da peça.
+        *As geometrias de usinagens que ultrapassam a peça são truncadas.*
+
+        **$t(tab.materials.edit_material.machining_separated_1)**
+        A peça mantém a sua forma inicial. Cada geometria de usinagem é exportada tal como está, sem fusão com as outras, numa camada `MACHININGS` por profundidade, nomeada a partir do material.
+      machining_separated_0: Entalhadas na peça
+      machining_separated_1: Separadas nas suas próprias camadas
+      machining_material_colored: Cores na exportação
+      machining_material_colored_help: |
+        Permite definir as cores das usinagens separadas nas exportações 2D (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_material_colored_1)**
+        O contorno das usinagens assume a cor deste material, sem preenchimento.
+
+        **$t(tab.materials.edit_material.machining_material_colored_0)**
+        As usinagens assumem as cores do que cortam na peça: as dos furos se forem passantes, caso contrário as das cavidades. Útil para as máquinas que deduzem o tipo de corte a partir das cores.
+      machining_material_colored_0: Automáticas
+      machining_material_colored_1: Cor do material
       std_attributes_dim_placeholder: Escolha um tamanho
       std_volumic_masses: Densidade
       std_volumic_masses_help: Permite definir a densidade para todas as dimensões, bem como para cada dimensão padrão do material.
@@ -1934,85 +1957,6 @@ tab:
         Seu modelo não possui atualmente nenhuma instância para exibir aqui.
         Uma instância é um **grupo** ou um **componente** colocado na cena.
     obsolete_base: Para permanecer sincronizado, você deve regenerar a estrutura.
-  # @no-translate
-  importer:
-    label: Importar
-    title: Importar peças
-    help: |
-      Esta página permite importar uma série de peças compatíveis (definidas por uma caixa de delimitação retangular) para seu modelo a partir de um arquivo [CSV](https://pt.wikipedia.org/wiki/Comma-separated_values).
-      Você poderá então usar o poder da Lista de Peças do *OpenCutList* gerando plano de corte com um software diferente de *SketchUp*.
-      Clique no botão **Abrir arquivo CSV** para carregar.
-    open_csv: Abrir arquivo CSV
-    import_to_model: Importar para o modelo
-    load:
-      title: Carregando arquivo CSV
-      info_0: |
-        Escolha as opções necessárias para a leitura correta do arquivo:
-        **{{ filename }}**.
-      info_1: |
-        *A unidade configurada no modelo é: **{{ unit }}**.
-        Esta unidade será usada para dimensões para as quais a unidade não está especificada*.
-      options: Opções de carregamento
-      option_col_sep: Separador
-      option_col_sep_tab: Tabulador
-      option_col_sep_comma: Vírgula
-      option_col_sep_semicolon: Ponto e vírgula
-      option_first_line_headers: Linha de Cabeçalho
-      option_first_line_headers_0: Dados
-      option_first_line_headers_1: Títulos de Coluna
-    import:
-      title: Importar peças para o modelo
-      info_0: |
-        ocê está prestes a importar **{{ count }} peça** para o modelo.
-        Esta parte será colocada na origem da cena principal.
-      info_0_plural: |
-        You are about to import **{{ count }} peças** para o model.
-        Estas peças serão empilhadas a partir da origem da cena principal.
-      info_1: Clique em **Importar** para confirmar a ação.
-      options: |
-        O modelo já contém *peças*, *definições* ou *materiais*.
-        Selecione as opções de importação que você precisa.
-      option_remove_all_?: O que vem a seguir?
-      option_remove_all_false: Adicionar peças a peças existentes
-      option_remove_all_true: Remover existente!
-      option_keep_definitions_settings: Manter configurações de definição
-      option_keep_materials_settings: Manter configurações de material
-    column:
-      unused: Não utilizado
-      mandatory: Campos obrigatórios
-      optional: Campos opcionais
-      name: Designação
-      count: Quantidade
-      bbox_length: Comprimento
-      bbox_width: Largura
-      bbox_thickness: Espessura
-      material: Material
-      tags: Identificação
-    tooltip:
-      errors: Esta parte não será importada porque produziu os seguintes erros
-      warnings: Esta parte será importada, mas produziu os seguintes avisos
-    error:
-      no_model: Nenhum modelo está aberto. Não é possível importar partes para o vazio;)
-      file_not_found: "Arquivo não encontrado : **{{ filename }}**"
-      bad_extension: O arquivo *{{ filename }}* não possui a extensão **.CSV** ou **.TSV**.
-      failed_to_load_csv_file: |
-        Incapaz de carregar o arquivo CSV: **{{ error }}**
-        *Verifique se você selecionou o separador de campo correto.*
-      empty_file: O arquivo parece vazio ou não pode ser interpretado.
-      no_importable_part: Nenhuma peça pode ser importada. Atribua os campos obrigatórios às colunas correspondentes.
-      invalid_name: Designação inválida
-      invalid_length: Comprimento inválido
-      invalid_width: Largura inválida
-      invalid_thickness: Espessura inválida
-      failed_to_import: O processo de importação falhou.
-    warning:
-      invalid_count: Contagem inválida
-      invalid_material: Material inválido
-    success:
-      imported_title: Importação concluída
-      imported_body: "{{ count }} peça foi importada com sucesso!"
-      imported_body_plural: "{{ count }} peças foram importadas com sucesso!"
-    obsolete_base: Para permanecer sincronizado, você deve recarregar o arquivo CSV.
   importers:
     default:
       open_file: Abrir um arquivo {{ extension }}
@@ -2662,12 +2606,26 @@ tool:
     action_4_status: Criar uma peça correspondente à interseção de várias peças
     action_4_state_0_status: Selecione a peça A
     action_4_state_1_status: Selecione a peça B
+    action_5: Dividir
+    action_5_status: Dividir uma ou mais peças com um plano
+    action_5_state_1_status: Clique na face de referência, em qualquer lugar do modelo
+    action_5_state_1_arrows_status: Dividir perpendicularmente a um eixo a partir da extremidade da seleção
+    action_5_state_1b_status: Clique para posicionar o ponto {{ index }} de 3 do plano de referência, em qualquer lugar do modelo
+    action_5_state_1b_arrows_status: Bloquear num eixo
+    action_5_state_1c_status: Clique para confirmar o plano de referência ou pressione Esc para remover o último ponto
+    action_5_state_2_status: Clique para dividir as peças ou insira uma distância
+    action_5_state_2a_status: Clique para posicionar o plano de divisão ou insira uma distância
+    action_5_state_2_arrows_status: Mudar de eixo
+    action_5_state_3_status: Clique no lado da parte a manter
+    action_5_state_4_status: Clique para dividir as peças em {{ number }} partes ou insira espaçamentos
     action_option_group_thickness: Espessura
     action_option_group_stretch_measure_type: Medida
     action_option_group_axes: Eixos
     action_option_group_paneling_joint_type: Montagem
     action_option_group_paneling_direction: Direção
     action_option_group_csg_operation: Operação
+    action_option_group_slice_mode: Modo
+    action_option_group_slice_reference: Referência
     action_option_group_options: Opções
     action_option_thickness_thickness: Espessura
     action_option_thickness_thickness_status: Define a espessura das chapas
@@ -2680,6 +2638,10 @@ tool:
     action_option_paneling_joint_type_miter_status: Corte em meia-esquadria
     action_option_paneling_direction_inward_status: Interna
     action_option_paneling_direction_outward_status: Externa
+    action_option_slice_mode_slice_status: Dividir as peças e manter todas as partes
+    action_option_slice_mode_cut_status: Cortar as peças e manter apenas uma parte
+    action_option_slice_reference_face_status: Plano de referência tomado de uma face
+    action_option_slice_reference_points_status: Plano de referência passando por 3 pontos
     action_option_options_centered_status: Centralizar em elementos esticados
     action_option_options_make_unique_status: Tornar únicos os elementos remodelados
     action_option_options_keep_a: Manter A
@@ -2688,9 +2650,9 @@ tool:
     action_option_options_keep_b_status: Manter as instâncias B após a operação
     action_option_options_remove_unused_definitions_status: Eliminar as definições de componentes que já não são utilizadas após a operação
     action_option_options_reuse_definition: Reutilizar as peças
-    action_option_options_reuse_definition_status: Compartilhar a mesma definição de componente entre as chapas de forma idêntica
+    action_option_options_reuse_definition_status: Compartilhar a mesma definição de componente entre as peças de forma idêntica
     action_option_options_reuse_definition_mirrored: Posicionamento espelhado
-    action_option_options_reuse_definition_mirrored_status: Posicionamento espelhado para as chapas de forma idêntica em oposição
+    action_option_options_reuse_definition_mirrored_status: Posicionamento espelhado para as peças de forma idêntica frente a frente
     notify:
       validate_a: Confirme para avançar para a seleção de B
       validate_b: Confirme para aplicar a operação

@@ -162,8 +162,6 @@ core:
   warning:
     dev: |
       You are using a **development** version of *OpenCutList*.
-      This version is available for testing only.
-      It is not recommended to use it in production.
 
       To report a bug: <a href="mailto:opencutlist@lairdubois.fr?subject=Bug%20Report%20OpenCutList%20{{ version }}%20(build: {{ build }})" target="_blank">opencutlist@lairdubois.fr</a>.
     not_available_in_context: Not available in this context
@@ -732,7 +730,7 @@ tab:
       instance_count_by_part: Packaging
       instance_count_by_part_help: |
         Allows the part to be considered as a *package* of one or more *units*.
-        The quantity associated with the part in the parts list will therefore represent the number of whole packages needed to obtain the number of units actually present in the model.
+        Therefore, the quantity associated with the part in the parts list will represent the number of whole packages needed to obtain the actual number of units present in the model.
 
         *Example: To count only 1 part for a pair of drawer runners:
         Packaging = 2 units / part*
@@ -815,7 +813,7 @@ tab:
     option:
       auto_orient: Automatic orientation of parts
       auto_orient_help: |
-        If this option is selected, the three dimensions of parts are sorted so that the largest represents *length* and the smallest *thickness*.
+        If this option is selected, the parts are sorted by dimension so that the largest represents *length* and the smallest represents *thickness*.
 
         Otherwise,
          - the *length* is read on the <span style='color:red'>red</span> axis,
@@ -834,7 +832,7 @@ tab:
       part_number_with_letters: Use letters to enumerate parts
       part_number_with_letters_help: If this option is selected, parts are enumerated using letters (A, B, C, ... Z, AA, AB, ...).
       part_number_sequence_by_group: Reset the enumeration of parts for each group
-      part_number_sequence_by_group_help: If this option is selected, the enumeration of parts is reset to 1 (or A) for each group (list of parts with same material and rough thickness).
+      part_number_sequence_by_group_help: If this option is selected, the enumeration of the parts in each group (list of parts with same material and same rough thickness) is reset to 1 (or A).
       part_folding: Group identical parts
       part_folding_help: |
         If this option is selected, parts made of **material Solid Wood, Sheet Goods or Dimensional**, having the **same finished size**, with the **same badges** and the **same finished surface** *(if the display of this surface is not hidden)* will be grouped on the same line in the *parts list*.
@@ -1303,7 +1301,7 @@ tab:
 
         This list is defined in the field **$t(tab.materials.edit_material.std_lengths)** of the material.
 
-        *Edit the material '{{ material_name }}' to update this list.*
+        *Edit the properties of the material '{{ material_name }}' to update this list.*
       option_std_bin_1d_add: Add a size
       option_std_bin_1d_none: None
       option_scrap_bin_1d_dimensional_sizes: Board Offcuts
@@ -1506,7 +1504,7 @@ tab:
         cut_plural: Cuts
         cut_trimming: Trimming cut
         cut_primary: Primary cut
-        cut_primary_plural: Primary cuts
+        cut_primary_plural: Primary Cuts
         cut_none: None
         cut_depth: Level {{ depth }}
       write:
@@ -1689,7 +1687,8 @@ tab:
       option_pins_length_1: Short
       option_pins_length_2: Medium
       option_pins_length_3: Long
-      option_pins_length_help: Allows you to select the length of the leader line.
+      option_pins_length_4: $t(default.automatic)
+      option_pins_length_help: Allows you to choose the length of the leader line.
       option_pins_direction: Direction
       option_pins_direction_0: Along the Red axis
       option_pins_direction_1: Along the Green axis
@@ -1943,6 +1942,7 @@ tab:
       formats: Formats
       cut_options: Cutting Parameters
       estimate_options: Estimation Options
+      export_options: Export Options
       attributes: Attributes
       thickness: Thickness
       thickness_help: |
@@ -2004,6 +2004,29 @@ tab:
       raw_estimated_1: Volume of raw material required
       multiplier_coefficient: Coefficient
       multiplier_coefficient_help: Used to indicate the multiplying coefficient applied to the gross volume.
+      machining_separated: Machining Geometries
+      machining_separated_help: |
+        Allows you to define how the machining geometries for this material are exported in 2D (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_separated_0)**
+        The machining geometries are subtracted from the part's shape and merged with its depth layers, as if the solid operation were performed in the part's geometry.
+        *Overflowing machining geometries are truncated.*
+
+        **$t(tab.materials.edit_material.machining_separated_1)**
+        The part retains its original shape. Each machining geometry is exported as-is, without merging with the others, on a `MACHININGS` layer per depth, named after the material.
+      machining_separated_0: Carved into the part
+      machining_separated_1: Separated on their own layers
+      machining_material_colored: Colors for export
+      machining_material_colored_help: |
+        Allows you to define the colors of separate machining operations in 2D exports (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_material_colored_1)**
+        The outline of the machinings takes on the color of this material, without fill.
+
+        **$t(tab.materials.edit_material.machining_material_colored_0)**
+        Machining operations take on the colors of what they cut out of the part: the colors of the holes if they are through holes, or the colors of the cavities otherwise. This is useful for machines that determine the type of cut based on the colors.
+      machining_material_colored_0: Automatic
+      machining_material_colored_1: Material Color
       std_attributes_dim_placeholder: Select a size
       std_volumic_masses: Density
       std_volumic_masses_help: Allows to set the density for all sizes as well as for each standard material size.
@@ -2155,85 +2178,6 @@ tab:
         Your model currently has no instances to display here.
         An instance is a **group** or a **component** placed in the scene.
     obsolete_base: To stay in sync, you need to refresh the structure.
-  # @no-translate
-  importer:
-    label: Import
-    title: Import Parts
-    help: |
-      This page allows you to import parts (defined by a rectangular bounding box) into your model from a [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) file.
-      You may then use the features of *OpenCutList* for parts that have been generated by a software other than *SketchUp*.
-      Click the **Open CSV file** button to start.
-    open_csv: Open CSV file
-    import_to_model: Import into model
-    load:
-      title: CSV File Upload
-      info_0: |
-        Select the options required to read the file:
-        **{{ filename }}**.
-      info_1: |
-        *The unit configured in the model is: **{{ unit }}**.
-        This unit will be used for dimensions without a specified unit*.
-      options: Loading Options
-      option_col_sep: Separator
-      option_col_sep_tab: Tab
-      option_col_sep_comma: Comma
-      option_col_sep_semicolon: Semicolon
-      option_first_line_headers: Header Line
-      option_first_line_headers_0: Data
-      option_first_line_headers_1: Column Titles
-    import:
-      title: Import Parts into the Model
-      info_0: |
-        You are about to import **{{ count }} part** into the model.
-        This part will be placed in a group at the origin of the main scene.
-      info_0_plural: |
-        You are about to import **{{ count }} parts** into the model.
-        These parts will be stacked in a group starting at the origin of the main scene.
-      info_1: Click **Import** to confirm the action.
-      options: |
-        The model already contains *parts*, *definitions* or *materials*.
-        Select the desired import options.
-      option_remove_all_?: "Select next step:"
-      option_remove_all_false: Add parts to the existing ones
-      option_remove_all_true: Remove everything!
-      option_keep_definitions_settings: Keep definition settings
-      option_keep_materials_settings: Keep material settings
-    column:
-      unused: Not used
-      mandatory: Required fields
-      optional: Optional fields
-      name: Designation
-      count: Quantity
-      bbox_length: Length
-      bbox_width: Width
-      bbox_thickness: Thickness
-      material: Material
-      tags: Badges
-    tooltip:
-      errors: This part will not be imported because it produced the following errors
-      warnings: This part will be imported but it produced the following warnings
-    error:
-      no_model: No model is open. It is impossible to import parts into the void ;)
-      file_not_found: "File not found: **{{ filename }}**"
-      bad_extension: The file *{{ filename }}* does not have the extension **.CSV** or **.TSV**.
-      failed_to_load_csv_file: |
-        Unable to load the CSV file: **{{ error }}**
-        *Verify that you have selected the appropriate field separator.*
-      empty_file: The file appears empty or cannot be read correctly.
-      no_importable_part: No part can be imported. Assign the required fields to the corresponding columns.
-      invalid_name: Invalid designation
-      invalid_length: Invalid length
-      invalid_width: Invalid width
-      invalid_thickness: Invalid thickness
-      failed_to_import: The import failed.
-    warning:
-      invalid_count: Invalid count
-      invalid_material: Invalid material
-    success:
-      imported_title: Import done
-      imported_body: "{{ count }} part successfully imported!"
-      imported_body_plural: "{{ count }} parts successfully imported!"
-    obsolete_base: To stay in sync, you need to reload the CSV file.
   importers:
     default:
       open_file: Open {{ extension }} file
@@ -2694,7 +2638,7 @@ tool:
     action_0_state_4_lock_status: Lock to the height of the source file
     action_0_state_5_status: Click the instance you want to add
     action_0_state_6_status: Click on the FRONT side of the module
-    action_0_state_7_status: Click on the TOP side of the module
+    action_0_state_7_status: Click the TOP face of the module
     action_0_add_title: Add a module
     action_0_add_name: Filename
     action_0_add_overwrite: The file "{{ name }}.skp" already exists. Would you like to replace it?
@@ -2768,7 +2712,7 @@ tool:
     action_option_options_ask_name_status: Enter part names manually
     action_option_options_layer_name: Tag
     action_option_options_layer_name_status: Name of the tag on which the parts are placed
-    action_option_anchor_center_x_status: Centered in X
+    action_option_anchor_center_x_status: Centered on X
     action_option_anchor_center_y_status: Centered on Y
     action_option_anchor_center_z_status: Centered on Z
     action_option_anchor_origin_status: Origin of the component
@@ -2883,29 +2827,17 @@ tool:
     action_4_status: Create a part corresponding to the intersection of several parts
     action_4_state_0_status: Select part A
     action_4_state_1_status: Select part B
-    # @no-translate
     action_5: Slice
-    # @no-translate
     action_5_status: Slice one or more parts with a plane
-    # @no-translate
     action_5_state_1_status: Click on the reference face, anywhere in the model
-    # @no-translate
     action_5_state_1_arrows_status: Slice perpendicular to an axis from the end of the selection
-    # @no-translate
     action_5_state_1b_status: Click to place point {{ index }} of 3 of the reference plane, anywhere in the model
-    # @no-translate
     action_5_state_1b_arrows_status: Lock to an axis
-    # @no-translate
     action_5_state_1c_status: Click to confirm the reference plane or press Esc to remove the last point
-    # @no-translate
     action_5_state_2_status: Click to slice the parts or enter a distance
-    # @no-translate
     action_5_state_2a_status: Click to place the cutting plane or enter a distance
-    # @no-translate
     action_5_state_2_arrows_status: Change axis
-    # @no-translate
     action_5_state_3_status: Click on the side of the piece to keep
-    # @no-translate
     action_5_state_4_status: Click to slice the parts into {{ number }} pieces or enter spacings
     action_option_group_thickness: Thickness
     action_option_group_stretch_measure_type: Measure
@@ -2913,14 +2845,12 @@ tool:
     action_option_group_paneling_joint_type: Joint
     action_option_group_paneling_direction: Direction
     action_option_group_csg_operation: Operation
-    # @no-translate
     action_option_group_slice_mode: Mode
-    # @no-translate
     action_option_group_slice_reference: Reference
     action_option_group_options: Options
     action_option_thickness_thickness: Thickness
     action_option_thickness_thickness_status: Defines the thickness of the panels
-    action_option_stretch_measure_type_outside_status: Edge-to-Edge measure
+    action_option_stretch_measure_type_outside_status: Measure edge-to-edge
     action_option_stretch_measure_type_offset_status: Measure difference
     action_option_axes_active_status: Manipulate along the active axes
     action_option_axes_context_status: Manipulate along the axes of the group or component containing the part
@@ -2929,13 +2859,9 @@ tool:
     action_option_paneling_joint_type_miter_status: Miter joint
     action_option_paneling_direction_inward_status: Inward direction
     action_option_paneling_direction_outward_status: Outward direction
-    # @no-translate
     action_option_slice_mode_slice_status: Slice the parts and keep all pieces
-    # @no-translate
     action_option_slice_mode_cut_status: Cut the parts and keep only one piece
-    # @no-translate
     action_option_slice_reference_face_status: Reference plane taken from a face
-    # @no-translate
     action_option_slice_reference_points_status: Reference plane through 3 points
     action_option_options_centered_status: Center on stretched elements
     action_option_options_make_unique_status: Make reshaped elements unique
@@ -2945,9 +2871,9 @@ tool:
     action_option_options_keep_b_status: Keep the B instances after the operation
     action_option_options_remove_unused_definitions_status: Delete component definitions that are no longer in use after the operation
     action_option_options_reuse_definition: Reuse parts
-    action_option_options_reuse_definition_status: Share the same component definition across panels with the same shape
+    action_option_options_reuse_definition_status: Share the same component definition across parts with the same shape
     action_option_options_reuse_definition_mirrored: Mirror Layout
-    action_option_options_reuse_definition_mirrored_status: Mirror layout for panels of the same shape facing each other
+    action_option_options_reuse_definition_mirrored_status: Mirror layout for parts of the same shape facing each other
     notify:
       validate_a: Confirm to proceed to the selection of B
       validate_b: Confirm to apply the operation
@@ -3159,7 +3085,7 @@ tool:
       x_hinges_to_remove: "{{ count }} hinge to erase"
       x_hinges_to_remove_plural: "{{ count }} hinges to erase"
       hinge_forced_make_unique: Parts made unique; otherwise, the front would have hinges on several sides
-      hinge_forced_make_unique_door: Front and parts made unique; otherwise, the hinges would also appear on its other occurences
+      hinge_forced_make_unique_door: Front and parts made unique; otherwise, the hinges would also appear on its other occurrences
       shared_definition: "The SKP file ({{ file_name }}) contains the same definition as {{ definition_name }}, which has already been loaded: the latter is the one that is used"
   smart_export:
     title: Export

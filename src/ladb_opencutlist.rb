@@ -3,7 +3,6 @@ module Ladb
 
     require 'sketchup.rb'
     require 'extensions.rb'
-    require 'date'
 
     unless file_loaded?(__FILE__)
 
@@ -21,7 +20,7 @@ module Ladb
       # Create extension
       ex = SketchupExtension.new('OpenCutList', File.join(PLUGIN_DIR, 'ruby', 'main'))
       ex.version     = "8.0.0-lab"  ## /!\ Auto-generated line, do not edit ##
-      ex.copyright   = "2016-#{Date.today.year} - GNU GPLv3"  ## /!\ Auto-generated line, do not edit ##
+      ex.copyright   = "2016-2026 - GNU GPLv3"  ## /!\ Auto-generated line, do not edit ##
       ex.creator     = 'L\'Air du Bois - www.lairdubois.fr'
 
       # Localize description
@@ -30,22 +29,26 @@ module Ladb
       ## DESCRIPTION_START ##
       when 'ar'
         ex.description = 'مولد لرسومات التقطيع التخطيطية و قوائم القَطع موجه للنجارين. مفتوح المصدر و ممول جماهيريا و سهل الاستخدام ;)'
+      when 'bg'
+        ex.description = 'Генератор на списък с детайли и схеми на разкрой за плоскост и дъска, предназначен за мебелисти. С отворен код, финансиран от потребителите и лесен за използване ;)'
       when 'cs'
         ex.description = 'Kusovník a nářezový plán pro truhláře. Zdarma, financován z darů a snadno použitelný ;)'
       when 'de'
         ex.description = 'Holzlisten- und Schnittplänegenerator für Platten und Stangen für Tischler/Schreiner/Zimmerer. Open Source, crowdfunded und einfach zu bedienen ;)'
       when 'es'
-        ex.description = 'Generador de lista de piezas y diagrama de corte para carpinteros. Software de código abierto, financiado por crowdfunding, es fácil de usar ;)'
+        ex.description = 'Generador de lista de piezas y diagrama de corte de tableros y listones para carpinteros. Software de código abierto, financiado por crowdfunding, es fácil de usar ;)'
       when 'fr'
         ex.description = 'Générateur de fiche de débit et calepinage de panneaux et barres pour les boiseux. Open Source, financé par les utilisateurs et facile à utiliser ;)'
       when 'he'
         ex.description = 'תוסף לחישוב תוכניות חיתוך לנגרים ועוד. קוד פתוח, מימון המונים וקל לשימוש ;)'
+      when 'hr'
+        ex.description = 'Generator popisa dijelova i planova krojenja ploča i letvi za stolare. Otvorenog koda, financiran od korisnika i jednostavan za korištenje ;)'
       when 'hu'
         ex.description = 'Faipari Szakembereknek Szabáslista és Szabásterv készítő program. Nyílt forráskódú, közösségi finanszírozású és könnyen használható ;)'
       when 'it'
         ex.description = 'Generatore di Distinte Materiali e Schemi di Taglio per falegnami. Open Source, crowdfunded e facile da usare ;)'
       when 'nl'
-        ex.description = 'Genereer materiaallijsten, zaagschema\'s voor panelen en balken voor houtbewerkers. Open Source, crowdfunded en gebruiksvriendelijk ;)'
+        ex.description = 'Genereer onderdelenlijst, zaagschema\'s voor panelen en planken voor houtbewerkers. Open Source, crowdfunded en gebruiksvriendelijk ;)'
       when 'pl'
         ex.description = 'Generator listy cięć i diagramów cięcia dla stolarzy. Open Source, finansowany społecznościowo i łatwy w użyciu ;)'
       when 'pt'

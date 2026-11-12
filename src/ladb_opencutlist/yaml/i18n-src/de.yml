@@ -162,8 +162,6 @@ core:
   warning:
     dev: |
       Sie verwenden eine **Entwicklerversion** von *OpenCutList*.
-      Diese Version dient ausschließlich zu Testzwecken.
-      Von einer Nutzung im Produktivbetrieb wird abgeraten.
 
       Um einen Fehler zu melden: <a href="mailto:opencutlist@lairdubois.fr?subject=Bug%20Report%20OpenCutList%20{{ version }}%20(build: {{ build }})" target="_blank">opencutlist@lairdubois.fr</a>.
     not_available_in_context: In diesem Kontext nicht verfügbar
@@ -894,7 +892,7 @@ tab:
       filters_warning: Dieser Filter zeigt nur **{{ count }}** Teil von insgesamt {{ total }} Teilen an.
       filters_warning_plural: Dieser Filter zeigt nur **{{ count }}** Teile von insgesamt {{ total }} Teilen an.
       edge_material_names_filter: Zu filternde Kantenmaterialien
-      veneer_material_names_filter: Zu filternde Furniere
+      veneer_material_names_filter: Zu filternde Furniermaterialien
       names_filter: Zu filternde Bezeichnungen
       tags_filter: Zu filternde Badges
       tags_filter_any: Alle Badges
@@ -1447,7 +1445,7 @@ tab:
       option_zoom_threshold: Zoomschwelle
       # TODO find a better explanation
       option_zoom_threshold_help: |
-        Ermöglicht die Festlegung der Diagrammbreite, unterhalb derer Diagramme automatisch vergrößert werden.
+        Dient zur Festlegung der Diagrammbreite, unterhalb derer Diagramme automatisch vergrößert werden.
 
         *Die Vergrößerung wird anhand des breitesten Diagramms berechnet*.
       option_time_limit: Zeitbegrenzung
@@ -1524,7 +1522,7 @@ tab:
           Ermöglicht den Export von Stangen zu aktivieren und deren Farbe anzugeben.
         option_bin_edge: Kantenband
         option_bin_edge_help: |
-          Ermöglicht den Export von Kanten zu aktivieren und deren Farbe anzugeben.
+          Ermöglicht den Export von Kantenbändern zu aktivieren und deren Farbe anzugeben.
         option_parts: Teile
         option_parts_help: |
           Ermöglicht den Export von Teilen zu aktivieren und deren Farbe anzugeben.
@@ -1579,7 +1577,7 @@ tab:
         Die Sortierreihenfolge der Etiketten wird durch die Anordnung der folgenden Kacheln definiert.
         Jede Eigenschaft kann in <i class="ladb-opencutlist-icon-sort-asc"></i> *aufsteigender* oder <i class="ladb-opencutlist-icon-sort-desc"></i> *absteigender* Reihenfolge sortiert werden.
       offset_help: |
-        Mit dem *Versatz* können Sie die Position des **ersten Etiketts** auf der **ersten Seite** festlegen.
+        Mit dem *Versatz* kann die Position des **ersten Etiketts** auf der **ersten Seite** festgelegt werden.
         Wählen Sie das Kästchen aus, das Ihrer Wahl entspricht.
       option_page: Papierformat
       option_page_format: Format
@@ -1677,7 +1675,7 @@ tab:
       option_pins_hidden: Anzeige
       option_pins_hidden_0: Mit Hinweistexten
       option_pins_hidden_1: Ohne Hinweistext
-      option_pins_hidden_help: Ein- oder Ausblenden des Hinweistexte mit Nummer oder Bezeichnung.
+      option_pins_hidden_help: Ein- oder Ausblenden der Hinweistexte, die auf die Teile zeigen, um deren Nummer oder Bezeichnung anzuzeigen.
       option_pins_colored: Farbe
       option_pins_colored_0: Ohne Farbe
       option_pins_colored_1: Farbe des Teils
@@ -1689,6 +1687,7 @@ tab:
       option_pins_length_1: Kurz
       option_pins_length_2: Mittel
       option_pins_length_3: Lang
+      option_pins_length_4: $t(default.automatic)
       option_pins_length_help: Ermöglicht die Auswahl der Länge der Verweislinie.
       option_pins_direction: Ausrichtung
       option_pins_direction_0: Längs der roten Achse
@@ -1826,7 +1825,7 @@ tab:
         Aktiviert die Trennung der Außenkontur der Teile von ihren Durchbrüchen sowie die Berechnung des Bearbeitungs-Überlaufabstands, der auf die Flächen angewendet wird, die sich am Rand der Kontur und der Kavitäten befinden.
       option_merge_holes_overflow: Bearbeitungszugabe
       option_merge_holes_overflow_help: |
-        Legt den Bearbeitungszugabe für Flächen an den Grenzen von Konturen und Kavitäten fest.
+        Legt den Bearbeitungszugabe für Flächen an den Grenzen von Konturen und Fächern fest.
       option_include_paths: Pfade
       option_include_paths_0: $t(default.no)
       option_include_paths_1: Kanten verwenden, die nicht mit einer Fläche verbunden sind
@@ -1943,6 +1942,7 @@ tab:
       formats: Formate
       cut_options: Schnittparameter
       estimate_options: Kalkulationsoptionen
+      export_options: Export-Optionen
       attributes: Attribute
       thickness: Dicke
       thickness_help: |
@@ -1993,22 +1993,45 @@ tab:
       edge_decremented_1: Reduzierung um Dicke des Kantenbands
       raw_estimated: Verwendetes Volumen
       raw_estimated_help: |
-        Ermöglicht die Festlegung des Volumens, das zur Schätzung der Masse und der Gesamtkosten von Teilen aus diesem Material verwendet wird.
+        Dient zur Festlegung des Volumens, das zur Schätzung der Masse und der Gesamtkosten von Teilen aus diesem Material verwendet wird.
 
         **Nutzvolumen**
         Das Gesamtvolumen ist die Summe der Volumen der Teile.
 
         **Volumen des benötigten Rohmaterials**
-        Das Gesamtvolumen ist die Summe der Volumen der Platten, Furnierblätter, Stangen oder Bänder der Teile nach dem Zuschnitt.
+        Das Gesamtvolumen ist die Summe der Volumen der Platten, Furnierblätter, Stangen oder Kantenbänder der Teile nach der Berechnung des Schnittplans.
       raw_estimated_0: Nutzvolumen der Teile
       raw_estimated_1: Volumen des benötigten Rohmaterials
       multiplier_coefficient: Faktor
       multiplier_coefficient_help: Ermöglicht die Angabe des Faktors, der auf das gemessene Bruttovolumen angewendet wird.
+      machining_separated: Bearbeitungsgeometrien
+      machining_separated_help: |
+        Dient zur Festlegung, wie die Bearbeitungsgeometrien dieses Materials in 2D (DXF, SVG) exportiert werden.
+
+        **$t(tab.materials.edit_material.machining_separated_0)**
+        Die Bearbeitungsgeometrien werden von der Form des Teils abgezogen und mit seinen Tiefen-Layern zusammengeführt, als ob die Volumenoperation in der Geometrie des Teils ausgeführt würde.
+        *Überstehende Bearbeitungsgeometrien werden abgeschnitten.*
+
+        **$t(tab.materials.edit_material.machining_separated_1)**
+        Das Teil behält seine ursprüngliche Form. Jede Bearbeitungsgeometrie wird unverändert, ohne Zusammenführung mit den anderen, auf einem Layer `MACHININGS` pro Tiefe exportiert, benannt nach dem Material.
+      machining_separated_0: In das Teil eingearbeitet
+      machining_separated_1: Getrennt auf eigenen Layern
+      machining_material_colored: Farben beim Export
+      machining_material_colored_help: |
+        Dient zur Festlegung der Farben der getrennten Bearbeitungen in 2D-Exporten (DXF, SVG).
+
+        **$t(tab.materials.edit_material.machining_material_colored_1)**
+        Die Kontur der Bearbeitungen übernimmt die Farbe dieses Materials, ohne Füllung.
+
+        **$t(tab.materials.edit_material.machining_material_colored_0)**
+        Die Bearbeitungen übernehmen die Farben dessen, was sie aus dem Teil ausschneiden: die der Bohrungen, wenn sie durchgehend sind, sonst die der Hohlräume. Nützlich für Maschinen, die die Schnittart aus den Farben ableiten.
+      machining_material_colored_0: Automatisch
+      machining_material_colored_1: Materialfarbe
       std_attributes_dim_placeholder: Wählen Sie eine Größe
       std_volumic_masses: Rohdichte
-      std_volumic_masses_help: Ermöglicht das Festlegen der Rohdichte für alle Größen sowie für jede Standardgröße des Materials.
+      std_volumic_masses_help: Dient zur Festlegung der Rohdichte für alle Größen sowie für jede Standardgröße des Materials.
       std_prices: Preis
-      std_prices_help: Ermöglicht die Definition des Preises für alle Größen sowie für jede einzelne Standardgröße des Materials.
+      std_prices_help: Dient zur Definition des Preises für alle Größen sowie für jede einzelne Standardgröße des Materials.
       std_cut_prices: Schnittpreis
       std_cut_prices_help: |
         Dient zur Festlegung des Preises für das Schneiden des Materials.
@@ -2091,7 +2114,7 @@ tab:
       instance_name: Instanz
       material: Material
       is_grain_group: Als **Fortlaufende Maserungsgruppe** definieren
-      is_grain_group_help: Wenn diese Option aktiviert ist, kann diese Instanz für die darin enthaltenen Elemente, bei denen die Option *Faserverlauf* aktiviert ist, als **Fortlaufende Maserungsgruppe** betrachtet werden.
+      is_grain_group_help: Wenn diese Option aktiviert ist, kann diese Instanz für die darin enthaltenen Teile, bei denen die Option *Faserverlauf* aktiviert ist, als **Fortlaufende Maserungsgruppe** betrachtet werden.
       definition_name: Definition
       description: Beschreibung
       url: URL
@@ -2155,85 +2178,6 @@ tab:
         Ihr Modell enthält keine Instanzen zum Anzeigen.
         Eine Instanz ist eine **Gruppe** oder eine **Komponente** in der Szene.
     obsolete_base: Um synchron zu bleiben, muss die Struktur neu generiert werden.
-  # @no-translate
-  importer:
-    label: Importieren
-    title: Teile importieren
-    help: |
-      An dieser Stelle können Sie Teile, als rechteckige Volumen (quaderförmig), aus einer [CSV](https://de.wikipedia.org/wiki/Comma-separated_values) Datei in Ihr Modell importieren.
-      Sie können damit die Holzliste von *OpenCutList* verwenden, die Teile jedoch mit einer anderen Software als *SketchUp* generieren.
-      Klicken Sie auf **CSV-Datei öffnen** zum Starten.
-    open_csv: CSV-Datei öffnen
-    import_to_model: Ins Modell importieren
-    load:
-      title: Laden einer CSV-Datei
-      info_0: |
-        Wählen Sie die Optionen aus, die zum korrekten Lesen der Datei erforderlich sind:
-        **{{ filename }}**.
-      info_1: |
-        *Die Einheit des Modells ist: **{{ unit }}**.
-        Diese Einheit wird für Dimensionen verwendet, bei denen die Einheit nicht angegeben ist*.
-      options: Optionen zum Laden
-      option_col_sep: Trennzeichen
-      option_col_sep_tab: Tabulator
-      option_col_sep_comma: Komma
-      option_col_sep_semicolon: Semikolon
-      option_first_line_headers: Erste Zeile
-      option_first_line_headers_0: Daten
-      option_first_line_headers_1: Spaltenüberschriften
-    import:
-      title: Teile ins Modell importieren
-      info_0: |
-        Sie sind dabei **{{ count }} Teil** in das Modell zu importieren.
-        Dieses Teil wird in einer Gruppe im Ursprung der Hauptszene platziert.
-      info_0_plural: |
-        Sie sind dabei **{{ count }} Teile** in das Modell zu importieren.
-        Diese Teile werden in einer Gruppe ab dem Ursprung der Hauptszene gestapelt.
-      info_1: Klicken Sie auf **Importieren**, um den Vorgang zu bestätigen.
-      options: |
-        Das Modell enthält schon *Teile*, *Definitionen* oder *Materialien*.
-        Wählen Sie aus den Importoptionen.
-      option_remove_all_?: Was tun?
-      option_remove_all_false: Teile zu bestehenden hinzufügen
-      option_remove_all_true: Alles löschen!
-      option_keep_definitions_settings: Einstellungen zu Definitionen beibehalten
-      option_keep_materials_settings: Materialparameter beibehalten
-    column:
-      unused: Nicht verwendet
-      mandatory: Pflichtspalten
-      optional: Optionale Spalten
-      name: Bezeichnung
-      count: Anzahl
-      bbox_length: Länge
-      bbox_width: Breite
-      bbox_thickness: Dicke
-      material: Material
-      tags: Badges
-    tooltip:
-      errors: Dieses Teil wird nicht importiert, weil es folgende Fehler enthält
-      warnings: Dieses Teil wird importiert, aber es enthält folgende Warnungen
-    error:
-      no_model: Kein Modell ist offen. Teile können nicht ins Leere importiert werden ;)
-      file_not_found: "Datei nicht gefunden: **{{ filename }}**"
-      bad_extension: Die Datei *{{ filename }}* hat nicht eine **.CSV** oder **.TSV** Endung.
-      failed_to_load_csv_file: |
-        Die CSV-Datei kann nicht geladen werden : **{{ error }}**
-        *Prüfen Sie, ob Sie das korrekte Datentrennzeichen gewählt haben.*
-      empty_file: Die Datei scheint leer zu sein oder konnte nicht richtig gelesen werden.
-      no_importable_part: Es können keine Teile importiert werden. Ordnen Sie die Pflichtfelder den entsprechenden Spalten zu.
-      invalid_name: Ungültige Bezeichnung
-      invalid_length: Ungültige Länge
-      invalid_width: Ungültige Breite
-      invalid_thickness: Ungültige Dicke
-      failed_to_import: Der Import ist fehlgeschlagen.
-    warning:
-      invalid_count: Ungültige Stückzahl
-      invalid_material: Ungültiges Material
-    success:
-      imported_title: Importieren abgeschlossen
-      imported_body: "{{ count }} Teil erfolgreich importiert!"
-      imported_body_plural: "{{ count }} Teile erfolgreich importiert!"
-    obsolete_base: Um synchron zu bleiben, müssen Sie die CSV-Datei neu laden.
   importers:
     default:
       open_file: Datei mit Erweiterung {{ extension }} öffnen
@@ -2361,7 +2305,7 @@ tab:
         option_no_material_help: "*Lassen Sie dieses Feld leer, wenn Sie kein Material auftragen möchten*."
         option_default_material_help: "*Wenn dieses Feld leer ist, wird ein Standardmaterial erstellt*."
         option_no_layer_help: "*Lassen Sie dieses Feld leer, wenn Sie kein Tag einfügen möchten*."
-        option_subtract_machinings: Bearbeitungen in die Werkstücke einarbeiten
+        option_subtract_machinings: Bearbeitungen in die Teile einarbeiten
         option_subtract_machinings_help: Die **Nuten**, **Falze** und **Fasen** der Teile, einschließlich derjenigen, die mit Zubehörteilen zusammenhängen, werden aus ihrem Volumen abgezogen, anstatt gezeichnet zu werden. Die Bohrungen bleiben gezeichnet.
         warning:
           subtract_machinings_failed: "Die Bearbeitungsstellen konnten in diese Teile nicht eingearbeitet werden, sie sind stattdessen eingezeichnet: {{ names }}"
@@ -2649,7 +2593,7 @@ tool:
     action_option_offset_shape_offset: Versatz
     action_option_offset_shape_offset_status: Ermöglicht es, einen Versatz auf die gezeichnete Form anzuwenden
     action_option_segments_segment_count: Anzahl Segmente
-    action_option_segments_segment_count_status: Ermöglicht das Festlegen der Anzahl der Kreissegmente
+    action_option_segments_segment_count_status: Dient zur Festlegung der Anzahl der Kreissegmente
     action_option_options_construction: Konstruktionslinien
     action_option_options_construction_status: Als Konstruktionslinien zeichnen
     action_option_options_rectangle_centered: Rechteck zentriert
@@ -2790,7 +2734,7 @@ tool:
       too_complex_cavity: Die Geometrie ist zu komplex, um darin Fächer zu erkennen
       closed_front_panel_opening: Diese Öffnung ist bereits durch ein Frontteil verschlossen
       closed_back_panel_opening: Diese Öffnung ist bereits durch eine Rückwand verschlossen
-      divider_number_overflow: Es ist nicht möglich, {{ number }} Trennwände in diesem Zwischenraum zu verteilen
+      divider_number_overflow: Es ist nicht möglich, {{ number }} Trennwände in diesem Fach zu verteilen
       front_panel_number_overflow: Es ist nicht möglich, {{ number }} Frontteile auf diese Öffnung zu verteilen
       back_panel_number_overflow: Es ist nicht möglich, {{ number }} Rückwände auf diese Öffnung zu verteilen
       back_panel_severs_parts: "Die Nut würde durchgehend verlaufen: {{ names }}. Verringern Sie ihre Tiefe"
@@ -2803,7 +2747,7 @@ tool:
       no_back_panel_machining: "Es konnte keine Nut gefräst werden: In dieser Tiefe grenzt kein benachbartes Teil an die Rückwand an"
       no_module_file: In diesem Ordner befinden sich keine .skp-Dateien
       module_axis_no_scale: "Das Modul kann entlang der {{ axis }} nicht skaliert werden: durch das Verhalten der Komponente verhindert"
-      module_axis_curve_intersect: "Nicht skalierbares Modul entlang der {{ axis }}: Eine der Schnittebenen verläuft durch eine nicht skalierbare Kurve"
+      module_axis_curve_intersect: "Nicht skalierbares Modul entlang der {{ axis }}: Eine der Trennebenen verläuft durch eine nicht skalierbare Kurve"
     success:
       part_created: "Neu erstelltes Teil: {{ name }}"
       part_created_plural: "{{ count }} neu erstellte Teile: {{ name }}"
@@ -2883,29 +2827,17 @@ tool:
     action_4_status: Ein Teil erstellen, das der Schnittmenge mehrerer Teile entspricht
     action_4_state_0_status: Wählen Sie Teil A aus
     action_4_state_1_status: Wählen Sie Teil B aus
-    # @no-translate
     action_5: Trennen
-    # @no-translate
     action_5_status: Ein oder mehrere Teile durch eine Ebene trennen
-    # @no-translate
     action_5_state_1_status: Klicken Sie auf die Referenzfläche, an beliebiger Stelle im Modell
-    # @no-translate
     action_5_state_1_arrows_status: Senkrecht zu einer Achse vom Ende der Auswahl aus trennen
-    # @no-translate
     action_5_state_1b_status: Klicken Sie, um Punkt {{ index }} von 3 der Referenzebene zu setzen, an beliebiger Stelle im Modell
-    # @no-translate
     action_5_state_1b_arrows_status: Auf eine Achse fixieren
-    # @no-translate
     action_5_state_1c_status: Klicken Sie, um die Referenzebene zu bestätigen, oder drücken Sie Esc, um den letzten Punkt zu entfernen
-    # @no-translate
     action_5_state_2_status: Klicken Sie, um die Teile zu trennen, oder geben Sie eine Distanz ein
-    # @no-translate
     action_5_state_2a_status: Klicken Sie, um die Trennebene zu platzieren, oder geben Sie eine Distanz ein
-    # @no-translate
     action_5_state_2_arrows_status: Achse wechseln
-    # @no-translate
     action_5_state_3_status: Klicken Sie auf die Seite des Stücks, das erhalten bleiben soll
-    # @no-translate
     action_5_state_4_status: Klicken Sie, um die Teile in {{ number }} Stücke zu trennen, oder geben Sie Abstände ein
     action_option_group_thickness: Dicke
     action_option_group_stretch_measure_type: Maß
@@ -2913,9 +2845,7 @@ tool:
     action_option_group_paneling_joint_type: Verbindung
     action_option_group_paneling_direction: Ausrichtung
     action_option_group_csg_operation: Operation
-    # @no-translate
     action_option_group_slice_mode: Modus
-    # @no-translate
     action_option_group_slice_reference: Referenz
     action_option_group_options: Optionen
     action_option_thickness_thickness: Dicke
@@ -2929,13 +2859,9 @@ tool:
     action_option_paneling_joint_type_miter_status: Gehrungsverbindung
     action_option_paneling_direction_inward_status: Nach innen
     action_option_paneling_direction_outward_status: Nach außen
-    # @no-translate
     action_option_slice_mode_slice_status: Teile trennen und alle Stücke behalten
-    # @no-translate
     action_option_slice_mode_cut_status: Teile abschneiden und nur ein Stück behalten
-    # @no-translate
     action_option_slice_reference_face_status: Referenzebene von einer Fläche übernommen
-    # @no-translate
     action_option_slice_reference_points_status: Referenzebene durch 3 Punkte
     action_option_options_centered_status: Auf die gestreckten Elemente zentrieren
     action_option_options_make_unique_status: Umgestaltete Elemente eindeutig machen
@@ -2945,9 +2871,9 @@ tool:
     action_option_options_keep_b_status: Die Instanzen B nach der Operation beibehalten
     action_option_options_remove_unused_definitions_status: Nach dem Vorgang nicht mehr verwendete Komponentendefinitionen löschen
     action_option_options_reuse_definition: Teile wiederverwenden
-    action_option_options_reuse_definition_status: Gleiche Komponentendefinition für Platten mit identischer Form verwenden
+    action_option_options_reuse_definition_status: Gleiche Komponentendefinition für Teile mit identischer Form verwenden
     action_option_options_reuse_definition_mirrored: Spiegelbildliche Anordnung
-    action_option_options_reuse_definition_mirrored_status: Spiegelbildliche Anordnung bei gegenüberliegenden Platten gleicher Form
+    action_option_options_reuse_definition_mirrored_status: Spiegelbildliche Anordnung bei gegenüberliegenden Teilen gleicher Form
     notify:
       validate_a: Bestätigen Sie, um zur Auswahl von B zu gelangen
       validate_b: Bestätigen Sie, um den Vorgang auszuführen
